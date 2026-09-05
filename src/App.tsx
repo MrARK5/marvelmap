@@ -7,7 +7,7 @@ import { AuthModal } from './components/AuthModal';
 import { useWatchlist } from './context/WatchlistContext';
 import { MARVEL_CATALOG } from './data/marvelCatalog';
 import { FilterState, MarvelItem } from './types/marvel';
-import { SkipForward, CheckCircle2 } from 'lucide-react';
+import { SkipForward } from 'lucide-react';
 
 export const App: React.FC = () => {
   const { getStatus, stats } = useWatchlist();
@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [filters, setFilters] = useState<FilterState>({
     searchQuery: '',
     status: 'all',
-    type: 'all',
+    franchise: 'all',
     phase: 'all',
     sortBy: 'order',
     viewMode: 'list',
@@ -28,7 +28,7 @@ export const App: React.FC = () => {
     return MARVEL_CATALOG.filter(item => {
       const status = getStatus(item.id);
 
-      // Default 'all' view: HIDE SKIPPED TITLES so they don't appear in default homepage
+      // Default 'all' view: HIDE SKIPPED TITLES from active view
       if (filters.status === 'all') {
         if (status === 'skipped') return false;
       } else {
@@ -36,13 +36,19 @@ export const App: React.FC = () => {
         if (status !== filters.status) return false;
       }
 
+      // Franchise / Universe separation
+      if (filters.franchise !== 'all') {
+        if (item.franchise !== filters.franchise) return false;
+      }
+
       // Search
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase().trim();
         const matchesTitle = item.title.toLowerCase().includes(q);
         const matchesUniverse = item.universe.toLowerCase().includes(q);
+        const matchesSub = (item.subfranchise || '').toLowerCase().includes(q);
         const matchesYear = String(item.year).includes(q);
-        if (!matchesTitle && !matchesUniverse && !matchesYear) {
+        if (!matchesTitle && !matchesUniverse && !matchesSub && !matchesYear) {
           return false;
         }
       }
@@ -112,14 +118,14 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Filter Bar */}
+        {/* Filter Bar with Franchise separation */}
         <FilterBar
           filters={filters}
           setFilters={setFilters}
           totalMatches={filteredItems.length}
         />
 
-        {/* Skipped section notification banner when on 'skipped' tab */}
+        {/* Skipped notice banner */}
         {filters.status === 'skipped' && (
           <div className="p-3 rounded-lg bg-[#11141E] border border-[#1E2536] flex items-center gap-2.5 text-xs text-slate-400">
             <SkipForward className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -134,15 +140,15 @@ export const App: React.FC = () => {
           <div className="p-12 text-center rounded-xl bg-[#11141E] border border-[#1E2536] space-y-2">
             <p className="text-xs sm:text-sm text-slate-400">
               {filters.status === 'skipped'
-                ? 'No skipped titles. You can mark any title as skipped from the main list.'
+                ? 'No skipped titles in this collection.'
                 : 'No titles match your current filters.'}
             </p>
-            {filters.status !== 'all' && (
+            {(filters.franchise !== 'all' || filters.status !== 'all') && (
               <button
-                onClick={() => setFilters(prev => ({ ...prev, status: 'all' }))}
+                onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all', phase: 'all' }))}
                 className="mt-2 px-3 py-1.5 rounded-md bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
               >
-                Show All Active Titles
+                Reset to All Titles
               </button>
             )}
           </div>

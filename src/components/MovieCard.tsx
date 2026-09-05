@@ -9,7 +9,7 @@ import {
   RotateCcw,
   ChevronRight
 } from 'lucide-react';
-import { MarvelItem, WatchStatus } from '../types/marvel';
+import { MarvelItem } from '../types/marvel';
 import { useWatchlist } from '../context/WatchlistContext';
 
 interface MovieCardProps {
@@ -21,12 +21,10 @@ interface MovieCardProps {
 export const MovieCard: React.FC<MovieCardProps> = ({
   item,
   onOpenDetails,
-  viewMode = 'list',
 }) => {
   const { getStatus, toggleStatus, skipItem, unskipItem, getEpisodeProgress } = useWatchlist();
   const status = getStatus(item.id);
   const epProgress = item.episodes.length > 0 ? getEpisodeProgress(item.id) : null;
-
   const isSkipped = status === 'skipped';
 
   return (
@@ -48,7 +46,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
         className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 cursor-pointer"
         onClick={() => onOpenDetails(item)}
       >
-        {/* Subtle left status pill indicator */}
+        {/* Left status indicator line */}
         <div className={`w-1 h-8 rounded-full flex-shrink-0 ${
           status === 'watched' ? 'bg-emerald-500' :
           status === 'watching' ? 'bg-blue-500' :
@@ -59,9 +57,11 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap mb-0.5">
-            <span className="text-[10px] font-mono text-slate-400">
-              {item.phase.split(':')[0]}
-            </span>
+            {item.subfranchise && (
+              <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.2 rounded">
+                {item.subfranchise}
+              </span>
+            )}
             <span className="text-xs font-mono text-slate-400">
               {item.year}
             </span>

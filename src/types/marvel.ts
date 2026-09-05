@@ -2,6 +2,8 @@ export type MarvelType = 'Movie' | 'TV Show' | 'Short Film' | 'Special';
 
 export type WatchStatus = 'unwatched' | 'watched' | 'watching' | 'watchLater' | 'skipped';
 
+export type MarvelFranchise = 'all' | 'mcu' | 'x-men' | 'spiderman' | 'legacy' | 'animated';
+
 export type ActiveTab = 'catalog' | 'timeline' | 'watch-orders' | 'watchlist' | 'dashboard';
 
 export interface MarvelEpisode {
@@ -31,6 +33,8 @@ export interface MarvelItem {
   rating: number;
   episodes: MarvelEpisode[];
   episodeCount: number;
+  franchise?: MarvelFranchise;
+  subfranchise?: string;
 }
 
 export type SortOption = 'order' | 'release-desc' | 'release-asc' | 'rating-desc' | 'title-asc';
@@ -38,6 +42,7 @@ export type SortOption = 'order' | 'release-desc' | 'release-asc' | 'rating-desc
 export interface FilterState {
   searchQuery: string;
   status: WatchStatus | 'all';
+  franchise: MarvelFranchise;
   type?: MarvelType | 'all';
   phase: string;
   sortBy: SortOption;
