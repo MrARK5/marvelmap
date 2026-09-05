@@ -1,6 +1,8 @@
 export type MarvelType = 'Movie' | 'TV Show' | 'Short Film' | 'Special';
 
-export type WatchStatus = 'unwatched' | 'watched' | 'watching' | 'watchLater';
+export type WatchStatus = 'unwatched' | 'watched' | 'watching' | 'watchLater' | 'skipped';
+
+export type ActiveTab = 'catalog' | 'timeline' | 'watch-orders' | 'watchlist' | 'dashboard';
 
 export interface MarvelEpisode {
   rowNum: number;
@@ -31,28 +33,24 @@ export interface MarvelItem {
   episodeCount: number;
 }
 
-export type SortOption = 'order' | 'release-desc' | 'release-asc' | 'rating-desc' | 'title-asc' | 'phase';
-
-export type ActiveTab = 'catalog' | 'timeline' | 'watch-orders' | 'watchlist' | 'dashboard';
+export type SortOption = 'order' | 'release-desc' | 'release-asc' | 'rating-desc' | 'title-asc';
 
 export interface FilterState {
   searchQuery: string;
   status: WatchStatus | 'all';
-  type: MarvelType | 'all';
+  type?: MarvelType | 'all';
   phase: string;
-  decade: string;
-  essentialOnly: boolean;
-  mcuOnly: boolean;
-  hasPostCredits: boolean;
   sortBy: SortOption;
-  viewMode: 'grid' | 'list';
+  viewMode?: 'list' | 'grid';
 }
 
 export interface WatchStats {
   totalItems: number;
+  activeItems: number;
   watchedCount: number;
   watchingCount: number;
   watchLaterCount: number;
+  skippedCount: number;
   completionPercentage: number;
   totalHours: number;
   watchedHours: number;
@@ -60,10 +58,10 @@ export interface WatchStats {
   totalMovies: number;
   showsWatched: number;
   totalShows: number;
-  phaseProgress: {
+  phaseProgress: Array<{
     phase: string;
     total: number;
     watched: number;
     percentage: number;
-  }[];
+  }>;
 }

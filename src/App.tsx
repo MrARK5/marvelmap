@@ -1,23 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
-import { HeroBanner } from './components/HeroBanner';
 import { FilterBar } from './components/FilterBar';
 import { MovieCard } from './components/MovieCard';
 import { MovieDetailModal } from './components/MovieDetailModal';
-import { TimelineView } from './components/TimelineView';
-import { WatchOrderView } from './components/WatchOrderView';
-import { WatchlistView } from './components/WatchlistView';
-import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
-import { Footer } from './components/Footer';
 import { useWatchlist } from './context/WatchlistContext';
 import { MARVEL_CATALOG } from './data/marvelCatalog';
-import { ActiveTab, FilterState, MarvelItem } from './types/marvel';
+import { FilterState, MarvelItem } from './types/marvel';
+import { SkipForward, CheckCircle2 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { getStatus } = useWatchlist();
+  const { getStatus, stats } = useWatchlist();
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('catalog');
   const [selectedMovie, setSelectedMovie] = useState<MarvelItem | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -26,67 +20,36 @@ export const App: React.FC = () => {
     status: 'all',
     type: 'all',
     phase: 'all',
-    decade: 'all',
-    essentialOnly: false,
-    mcuOnly: false,
-    hasPostCredits: false,
     sortBy: 'order',
-    viewMode: 'grid',
+    viewMode: 'list',
   });
 
   const filteredItems = useMemo(() => {
     return MARVEL_CATALOG.filter(item => {
+      const status = getStatus(item.id);
+
+      // Default 'all' view: HIDE SKIPPED TITLES so they don't appear in default homepage
+      if (filters.status === 'all') {
+        if (status === 'skipped') return false;
+      } else {
+        // Specific status filter (e.g. 'skipped', 'watched', 'watching', 'watchLater')
+        if (status !== filters.status) return false;
+      }
+
       // Search
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase().trim();
         const matchesTitle = item.title.toLowerCase().includes(q);
         const matchesUniverse = item.universe.toLowerCase().includes(q);
-        const matchesNotes = item.notes.toLowerCase().includes(q);
         const matchesYear = String(item.year).includes(q);
-        if (!matchesTitle && !matchesUniverse && !matchesNotes && !matchesYear) {
+        if (!matchesTitle && !matchesUniverse && !matchesYear) {
           return false;
         }
-      }
-
-      // Watch status
-      if (filters.status !== 'all') {
-        const s = getStatus(item.id);
-        if (s !== filters.status) return false;
-      }
-
-      // Type
-      if (filters.type !== 'all') {
-        if (item.type !== filters.type) return false;
       }
 
       // Phase
       if (filters.phase !== 'all') {
         if (item.phase !== filters.phase) return false;
-      }
-
-      // Decade
-      if (filters.decade !== 'all') {
-        const y = item.year;
-        if (filters.decade === '1980s' && (y < 1980 || y > 1989)) return false;
-        if (filters.decade === '1990s' && (y < 1990 || y > 1999)) return false;
-        if (filters.decade === '2000s' && (y < 2000 || y > 2009)) return false;
-        if (filters.decade === '2010s' && (y < 2010 || y > 2019)) return false;
-        if (filters.decade === '2020s' && y < 2020) return false;
-      }
-
-      // Essential
-      if (filters.essentialOnly && !item.isEssential) {
-        return false;
-      }
-
-      // MCU Only
-      if (filters.mcuOnly && !item.isMCU) {
-        return false;
-      }
-
-      // Post credits
-      if (filters.hasPostCredits && (!item.postCredits || item.postCredits.includes('❌ No'))) {
-        return false;
       }
 
       return true;
@@ -96,7 +59,7 @@ export const App: React.FC = () => {
       }
       if (filters.sortBy === 'release-desc') {
         if (a.year !== b.year) return b.year - a.year;
-        return b.order - a.order;
+        return a.order - b.order;
       }
       if (filters.sortBy === 'release-asc') {
         if (a.year !== b.year) return a.year - b.year;
@@ -108,9 +71,6 @@ export const App: React.FC = () => {
       if (filters.sortBy === 'title-asc') {
         return a.title.localeCompare(b.title);
       }
-      if (filters.sortBy === 'phase') {
-        return a.order - b.order;
-      }
       return 0;
     });
   }, [filters, getStatus]);
@@ -118,106 +78,85 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0A0C10] text-slate-100 flex flex-col font-sans selection:bg-[#E62429] selection:text-white">
       
-      {/* Header */}
+      {/* Minimal Header */}
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
         searchQuery={filters.searchQuery}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, searchQuery: q }))}
         onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-5 pb-12 space-y-4">
         
-        {/* Catalog Tab */}
-        {activeTab === 'catalog' && (
-          <div className="space-y-4">
-            
-            {!filters.searchQuery && (
-              <HeroBanner
-                setActiveTab={setActiveTab}
-                onSelectMovie={(item) => setSelectedMovie(item)}
-              />
+        {/* Minimal Progress Bar */}
+        <div className="p-3.5 rounded-xl bg-[#11141E] border border-[#1E2536] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-xs font-semibold text-slate-200">
+              Watch Progress
+            </div>
+            <div className="text-xs text-slate-400 font-mono">
+              <strong className="text-white">{stats.watchedCount}</strong> of {stats.activeItems} watched ({stats.completionPercentage}%)
+            </div>
+            {stats.skippedCount > 0 && (
+              <span className="text-[11px] text-slate-500 font-mono">
+                &bull; {stats.skippedCount} skipped
+              </span>
             )}
+          </div>
 
-            <FilterBar
-              filters={filters}
-              setFilters={setFilters}
-              totalMatches={filteredItems.length}
+          <div className="w-full sm:w-48 h-1.5 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
+            <div
+              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+              style={{ width: `${stats.completionPercentage}%` }}
             />
+          </div>
+        </div>
 
-            {filteredItems.length === 0 ? (
-              <div className="p-12 text-center rounded-xl bg-[#11141E] border border-[#1E2536] space-y-2">
-                <h3 className="font-bold text-white text-sm">No titles found</h3>
-                <p className="text-xs text-slate-400">
-                  Try adjusting your filters or search terms.
-                </p>
-                <button
-                  onClick={() => setFilters(prev => ({
-                    ...prev,
-                    searchQuery: '',
-                    status: 'all',
-                    type: 'all',
-                    phase: 'all',
-                    decade: 'all',
-                    essentialOnly: false,
-                    mcuOnly: false,
-                    hasPostCredits: false,
-                  }))}
-                  className="mt-2 px-3 py-1.5 rounded-md bg-[#E62429] hover:bg-[#CC1E23] text-white text-xs font-semibold transition-colors"
-                >
-                  Reset filters
-                </button>
-              </div>
-            ) : filters.viewMode === 'list' ? (
-              <div className="space-y-2">
-                {filteredItems.map(item => (
-                  <MovieCard
-                    key={item.id}
-                    item={item}
-                    viewMode="list"
-                    onOpenDetails={(i) => setSelectedMovie(i)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                {filteredItems.map(item => (
-                  <MovieCard
-                    key={item.id}
-                    item={item}
-                    viewMode="grid"
-                    onOpenDetails={(i) => setSelectedMovie(i)}
-                  />
-                ))}
-              </div>
-            )}
+        {/* Filter Bar */}
+        <FilterBar
+          filters={filters}
+          setFilters={setFilters}
+          totalMatches={filteredItems.length}
+        />
 
+        {/* Skipped section notification banner when on 'skipped' tab */}
+        {filters.status === 'skipped' && (
+          <div className="p-3 rounded-lg bg-[#11141E] border border-[#1E2536] flex items-center gap-2.5 text-xs text-slate-400">
+            <SkipForward className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <span>
+              These titles are marked as skipped and will <strong>not appear</strong> on your default watchlist. You can restore any title back to your active list at any time.
+            </span>
           </div>
         )}
 
-        {/* Timeline Tab */}
-        {activeTab === 'timeline' && (
-          <TimelineView onSelectMovie={(item) => setSelectedMovie(item)} />
-        )}
-
-        {/* Watch Orders Tab */}
-        {activeTab === 'watch-orders' && (
-          <WatchOrderView onSelectMovie={(item) => setSelectedMovie(item)} />
-        )}
-
-        {/* Watchlist Tab */}
-        {activeTab === 'watchlist' && (
-          <WatchlistView
-            onSelectMovie={(item) => setSelectedMovie(item)}
-            onBrowseCatalog={() => setActiveTab('catalog')}
-          />
-        )}
-
-        {/* Dashboard Tab */}
-        {activeTab === 'dashboard' && (
-          <DashboardView onOpenAuth={() => setIsAuthModalOpen(true)} />
+        {/* Titles List */}
+        {filteredItems.length === 0 ? (
+          <div className="p-12 text-center rounded-xl bg-[#11141E] border border-[#1E2536] space-y-2">
+            <p className="text-xs sm:text-sm text-slate-400">
+              {filters.status === 'skipped'
+                ? 'No skipped titles. You can mark any title as skipped from the main list.'
+                : 'No titles match your current filters.'}
+            </p>
+            {filters.status !== 'all' && (
+              <button
+                onClick={() => setFilters(prev => ({ ...prev, status: 'all' }))}
+                className="mt-2 px-3 py-1.5 rounded-md bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
+              >
+                Show All Active Titles
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredItems.map(item => (
+              <MovieCard
+                key={item.id}
+                item={item}
+                viewMode="list"
+                onOpenDetails={(i) => setSelectedMovie(i)}
+              />
+            ))}
+          </div>
         )}
 
       </main>
@@ -237,8 +176,10 @@ export const App: React.FC = () => {
         onClose={() => setIsAuthModalOpen(false)}
       />
 
-      {/* Footer */}
-      <Footer setActiveTab={setActiveTab} />
+      {/* Minimal Footer */}
+      <footer className="border-t border-[#1E2536] py-6 text-center text-[11px] text-slate-600">
+        MarvelMap &bull; Minimalist Marvel Cinematic Watchlist
+      </footer>
 
     </div>
   );

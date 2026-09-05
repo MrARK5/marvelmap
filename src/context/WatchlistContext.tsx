@@ -18,6 +18,8 @@ interface WatchlistContextType {
   isSavingToCloud: boolean;
   setStatus: (id: string, status: WatchStatus) => void;
   toggleStatus: (id: string, targetStatus: WatchStatus) => void;
+  skipItem: (id: string) => void;
+  unskipItem: (id: string) => void;
   toggleEpisode: (itemId: string, rowNum: number) => void;
   setAllEpisodes: (itemId: string, watched: boolean) => void;
   getStatus: (id: string) => WatchStatus;
@@ -54,7 +56,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return { statusMap: {}, episodeStatusMap: {}, userNotes: {} };
   });
 
-  // Load user data when authenticated user changes
+  // Sync on user auth change
   useEffect(() => {
     let isCancelled = false;
 
@@ -72,7 +74,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 userNotes: userCloudData.userNotes || {},
               });
             } else {
-              // Upload current local progress to user's new account
               await saveUserData(user.uid, {
                 statusMap: data.statusMap,
                 episodeStatusMap: data.episodeStatusMap,
@@ -82,7 +83,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
           }
         } catch (e) {
-          console.error('Failed to sync on user auth', e);
+          console.error('Sync failed', e);
         } finally {
           if (!isCancelled) {
             setIsSavingToCloud(false);
@@ -96,7 +97,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => { isCancelled = true; };
   }, [user?.uid]);
 
-  // Save to localStorage and Cloud whenever data changes
+  // Persist locally & to Cloud
   useEffect(() => {
     try {
       localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(data));
@@ -104,7 +105,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Failed to write to localStorage', e);
     }
 
-    // Cloud auto-sync
     if (user) {
       setIsSavingToCloud(true);
       const timer = setTimeout(async () => {
@@ -141,7 +141,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const epDict: Record<number, boolean> = {};
           item.episodes.forEach(ep => { epDict[ep.rowNum] = true; });
           newEpMap[id] = epDict;
-        } else if (status === 'unwatched') {
+        } else if (status === 'unwatched' || status === 'skipped') {
           delete newEpMap[id];
         }
       }
@@ -158,6 +158,14 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const current = getStatus(id);
     setStatus(id, current === targetStatus ? 'unwatched' : targetStatus);
   }, [getStatus, setStatus]);
+
+  const skipItem = useCallback((id: string) => {
+    setStatus(id, 'skipped');
+  }, [setStatus]);
+
+  const unskipItem = useCallback((id: string) => {
+    setStatus(id, 'unwatched');
+  }, [setStatus]);
 
   const toggleEpisode = useCallback((itemId: string, rowNum: number) => {
     setData(prev => {
@@ -262,7 +270,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return true;
       }
     } catch (e) {
-      console.error('Import parse error', e);
+      console.error('Import error', e);
     }
     return false;
   }, []);
@@ -271,6 +279,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     let watchedCount = 0;
     let watchingCount = 0;
     let watchLaterCount = 0;
+    let skippedCount = 0;
     let moviesWatched = 0;
     let totalMovies = 0;
     let showsWatched = 0;
@@ -323,10 +332,13 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       } else if (status === 'watchLater') {
         watchLaterCount++;
+      } else if (status === 'skipped') {
+        skippedCount++;
       }
     });
 
-    const completionPercentage = Math.round((watchedCount / MARVEL_CATALOG.length) * 100) || 0;
+    const activeItems = Math.max(MARVEL_CATALOG.length - skippedCount, 0);
+    const completionPercentage = activeItems > 0 ? Math.round((watchedCount / activeItems) * 100) : 0;
 
     const phaseProgress = MARVEL_PHASES.map(p => {
       const cur = phaseMap[p] || { total: 0, watched: 0 };
@@ -340,9 +352,11 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     return {
       totalItems: MARVEL_CATALOG.length,
+      activeItems,
       watchedCount,
       watchingCount,
       watchLaterCount,
+      skippedCount,
       completionPercentage,
       totalHours: Math.round(totalHours),
       watchedHours: Math.round(watchedHours),
@@ -364,6 +378,8 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isSavingToCloud,
         setStatus,
         toggleStatus,
+        skipItem,
+        unskipItem,
         toggleEpisode,
         setAllEpisodes,
         getStatus,
