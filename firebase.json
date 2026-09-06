@@ -1,0 +1,16 @@
+{
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "MarvelMap",
+        "supportEmail": "rajkarunadasan@gmail.com"
+      },
+      "emailPassword": true
+    },
+    "authorizedDomains": [
+      "localhost",
+      "mrark5.github.io",
+      "marvelmap-watchlist-2026.firebaseapp.com"
+    ]
+  }
+}
