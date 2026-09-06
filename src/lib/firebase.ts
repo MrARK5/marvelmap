@@ -4,6 +4,8 @@ import {
   Auth, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as fbSignOut, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -16,36 +18,71 @@ import {
   setDoc 
 } from 'firebase/firestore';
 
-// Check if Firebase environment variables are configured
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+const STORAGE_CONFIG_KEY = 'marvelmap_firebase_config';
 
-export const isFirebaseConfigured = Boolean(
-  firebaseConfig.apiKey && 
-  firebaseConfig.projectId
-);
-
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-
-if (isFirebaseConfigured) {
+// Load stored config or environment variables
+function getInitialConfig() {
   try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (error) {
-    console.warn('Firebase initialization skipped or failed:', error);
+    const saved = localStorage.getItem(STORAGE_CONFIG_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.apiKey && parsed.projectId) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse saved firebase config', e);
   }
+
+  return {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  };
 }
 
-export { auth, db };
+let currentConfig = getInitialConfig();
+
+export let isFirebaseConfigured = Boolean(
+  currentConfig?.apiKey && 
+  currentConfig?.projectId
+);
+
+export let app: FirebaseApp | null = null;
+export let auth: Auth | null = null;
+export let db: Firestore | null = null;
+
+export function initFirebase(config = currentConfig) {
+  if (config?.apiKey && config?.projectId) {
+    try {
+      app = getApps().length === 0 ? initializeApp(config) : getApps()[0];
+      auth = getAuth(app);
+      db = getFirestore(app);
+      isFirebaseConfigured = true;
+      currentConfig = config;
+      return true;
+    } catch (error) {
+      console.warn('Firebase initialization error:', error);
+    }
+  }
+  return false;
+}
+
+// Initialize on module load
+initFirebase();
+
+export function saveFirebaseConfig(config: Record<string, string>): boolean {
+  try {
+    localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(config));
+    return initFirebase(config);
+  } catch (e) {
+    console.error('Failed to save firebase config', e);
+    return false;
+  }
+}
 
 // Watchlist data shape for cloud sync
 export interface UserWatchlistData {

@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   auth, 
-  isFirebaseConfigured 
+  isFirebaseConfigured,
+  initFirebase,
+  saveFirebaseConfig
 } from '../lib/firebase';
 import { 
   signInWithEmailAndPassword, 
@@ -29,7 +31,8 @@ interface AuthContextType {
   isFirebaseActive: boolean;
   signIn: (email: string, pass: string) => Promise<void>;
   signUp: (email: string, pass: string, name?: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (emailPromptFallback?: string) => Promise<void>;
+  connectCloud: (config: Record<string, string>) => boolean;
   signOut: () => Promise<void>;
 }
 
@@ -42,10 +45,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [firebaseActive, setFirebaseActive] = useState(isFirebaseConfigured);
 
   // Initialize Auth state
   useEffect(() => {
-    if (isFirebaseConfigured && auth) {
+    if (firebaseActive && auth) {
       const unsubscribe = onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
         if (fbUser) {
           setUser({
@@ -73,12 +77,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setLoading(false);
     }
-  }, []);
+  }, [firebaseActive]);
 
   const signIn = useCallback(async (email: string, pass: string): Promise<void> => {
     const cleanEmail = email.trim().toLowerCase();
 
-    if (isFirebaseConfigured && auth) {
+    if (firebaseActive && auth) {
       await signInWithEmailAndPassword(auth, cleanEmail, pass);
       return;
     }
@@ -105,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(appUser));
     setUser(appUser);
-  }, []);
+  }, [firebaseActive]);
 
   const signUp = useCallback(async (email: string, pass: string, name?: string): Promise<void> => {
     const cleanEmail = email.trim().toLowerCase();
@@ -114,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Password must be at least 6 characters long.');
     }
 
-    if (isFirebaseConfigured && auth) {
+    if (firebaseActive && auth) {
       await createUserWithEmailAndPassword(auth, cleanEmail, pass);
       return;
     }
@@ -128,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('An account with this email already exists. Please Sign In.');
     }
 
-    const newUid = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const newUid = `user_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
     localUsers[cleanEmail] = {
       email: cleanEmail,
       pass,
@@ -147,36 +151,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(appUser));
     setUser(appUser);
-  }, []);
+  }, [firebaseActive]);
 
-  const signInWithGoogle = useCallback(async (): Promise<void> => {
-    if (isFirebaseConfigured && auth) {
+  const signInWithGoogle = useCallback(async (emailPromptFallback?: string): Promise<void> => {
+    if (firebaseActive && auth) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
       return;
     }
 
-    // Instant local Google Sign In simulation when Firebase keys aren't configured yet
+    // If Firebase isn't configured yet, prompt or use provided Gmail address
+    const targetEmail = (emailPromptFallback || '').trim().toLowerCase();
+    const finalEmail = targetEmail || 'user@gmail.com';
+    const cleanUid = `google_${finalEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
     const googleUser: AppUser = {
-      uid: 'google_user_' + Date.now().toString(36),
-      email: 'marvel.watcher@gmail.com',
-      displayName: 'Marvel Watcher',
+      uid: cleanUid,
+      email: finalEmail,
+      displayName: finalEmail.split('@')[0],
       isCloudUser: false,
     };
     localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(googleUser));
     setUser(googleUser);
+  }, [firebaseActive]);
+
+  const connectCloud = useCallback((config: Record<string, string>): boolean => {
+    const success = saveFirebaseConfig(config);
+    if (success) {
+      setFirebaseActive(true);
+    }
+    return success;
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {
-    if (isFirebaseConfigured && auth) {
+    if (firebaseActive && auth) {
       await fbSignOut(auth);
       return;
     }
 
     localStorage.removeItem(LOCAL_SESSION_KEY);
     setUser(null);
-  }, []);
+  }, [firebaseActive]);
 
   return (
     <AuthContext.Provider
@@ -185,10 +201,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         isSyncing,
         setIsSyncing,
-        isFirebaseActive: isFirebaseConfigured,
+        isFirebaseActive: firebaseActive,
         signIn,
         signUp,
         signInWithGoogle,
+        connectCloud,
         signOut,
       }}
     >
