@@ -27,6 +27,15 @@
   background: #E62429;
 }
 
+/* Hide scrollbar for horizontal swipeable pill rows on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Clean UI utility classes */
 .panel {
   background-color: #11141E;
@@ -38,5 +47,5 @@
 }
 .panel-hover:hover {
   border-color: #2E3852;
-  background-color: #141824;
+  background-color: #151926;
 }

@@ -6,6 +6,8 @@ import {
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as fbSignOut, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -15,6 +17,7 @@ export interface AppUser {
   uid: string;
   email: string;
   displayName?: string;
+  photoURL?: string;
   isCloudUser: boolean;
 }
 
@@ -26,6 +29,7 @@ interface AuthContextType {
   isFirebaseActive: boolean;
   signIn: (email: string, pass: string) => Promise<void>;
   signUp: (email: string, pass: string, name?: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -48,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             uid: fbUser.uid,
             email: fbUser.email || 'user@marvelmap.app',
             displayName: fbUser.displayName || fbUser.email?.split('@')[0],
+            photoURL: fbUser.photoURL || undefined,
             isCloudUser: true,
           });
         } else {
@@ -110,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (isFirebaseConfigured && auth) {
-      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
+      await createUserWithEmailAndPassword(auth, cleanEmail, pass);
       return;
     }
 
@@ -144,6 +149,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(appUser);
   }, []);
 
+  const signInWithGoogle = useCallback(async (): Promise<void> => {
+    if (isFirebaseConfigured && auth) {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+      return;
+    }
+
+    // Instant local Google Sign In simulation when Firebase keys aren't configured yet
+    const googleUser: AppUser = {
+      uid: 'google_user_' + Date.now().toString(36),
+      email: 'marvel.watcher@gmail.com',
+      displayName: 'Marvel Watcher',
+      isCloudUser: false,
+    };
+    localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(googleUser));
+    setUser(googleUser);
+  }, []);
+
   const signOut = useCallback(async (): Promise<void> => {
     if (isFirebaseConfigured && auth) {
       await fbSignOut(auth);
@@ -164,6 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isFirebaseActive: isFirebaseConfigured,
         signIn,
         signUp,
+        signInWithGoogle,
         signOut,
       }}
     >

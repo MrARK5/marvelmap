@@ -92,25 +92,25 @@ export const App: React.FC = () => {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-5 pb-12 space-y-4">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 pt-4 pb-12 space-y-3.5">
         
-        {/* Minimal Progress Bar */}
-        <div className="p-3.5 rounded-xl bg-[#11141E] border border-[#1E2536] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+        {/* Progress Card */}
+        <div className="p-3 sm:p-4 rounded-2xl bg-[#11141E] border border-[#1E2536] space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
+          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
             <div className="text-xs font-semibold text-slate-200">
               Watch Progress
             </div>
             <div className="text-xs text-slate-400 font-mono">
-              <strong className="text-white">{stats.watchedCount}</strong> of {stats.activeItems} watched ({stats.completionPercentage}%)
+              <strong className="text-white">{stats.watchedCount}</strong> of {stats.activeItems} ({stats.completionPercentage}%)
             </div>
             {stats.skippedCount > 0 && (
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
                 &bull; {stats.skippedCount} skipped
               </span>
             )}
           </div>
 
-          <div className="w-full sm:w-48 h-1.5 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
+          <div className="w-full sm:w-48 h-2 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
             <div
               className="h-full bg-emerald-500 rounded-full transition-all duration-300"
               style={{ width: `${stats.completionPercentage}%` }}
@@ -127,7 +127,7 @@ export const App: React.FC = () => {
 
         {/* Skipped notice banner */}
         {filters.status === 'skipped' && (
-          <div className="p-3 rounded-lg bg-[#11141E] border border-[#1E2536] flex items-center gap-2.5 text-xs text-slate-400">
+          <div className="p-3 rounded-xl bg-[#11141E] border border-[#1E2536] flex items-center gap-2.5 text-xs text-slate-400">
             <SkipForward className="w-4 h-4 text-slate-400 flex-shrink-0" />
             <span>
               These titles are marked as skipped and will <strong>not appear</strong> on your default watchlist. You can restore any title back to your active list at any time.
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
 
         {/* Titles List */}
         {filteredItems.length === 0 ? (
-          <div className="p-12 text-center rounded-xl bg-[#11141E] border border-[#1E2536] space-y-2">
+          <div className="p-8 sm:p-12 text-center rounded-2xl bg-[#11141E] border border-[#1E2536] space-y-2">
             <p className="text-xs sm:text-sm text-slate-400">
               {filters.status === 'skipped'
                 ? 'No skipped titles in this collection.'
@@ -146,14 +146,14 @@ export const App: React.FC = () => {
             {(filters.franchise !== 'all' || filters.status !== 'all') && (
               <button
                 onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all', phase: 'all' }))}
-                className="mt-2 px-3 py-1.5 rounded-md bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
+                className="mt-2 px-3.5 py-1.5 rounded-xl bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
               >
                 Reset to All Titles
               </button>
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 sm:space-y-2.5">
             {filteredItems.map(item => (
               <MovieCard
                 key={item.id}

@@ -5,9 +5,9 @@ import {
   Bookmark, 
   Star, 
   Clock, 
-  SkipForward,
-  RotateCcw,
-  ChevronRight
+  SkipForward, 
+  RotateCcw, 
+  ChevronRight 
 } from 'lucide-react';
 import { MarvelItem } from '../types/marvel';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -29,7 +29,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
   return (
     <div 
-      className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-lg border transition-all ${
+      className={`group rounded-xl border transition-all ${
         status === 'watched'
           ? 'bg-[#101713] border-emerald-500/30'
           : status === 'watching'
@@ -41,128 +41,249 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           : 'bg-[#11141E] border-[#1E2536] hover:border-[#2E3852]'
       }`}
     >
-      {/* Clickable info area */}
-      <div 
-        className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 cursor-pointer"
-        onClick={() => onOpenDetails(item)}
-      >
-        {/* Left status indicator line */}
-        <div className={`w-1 h-8 rounded-full flex-shrink-0 ${
-          status === 'watched' ? 'bg-emerald-500' :
-          status === 'watching' ? 'bg-blue-500' :
-          status === 'watchLater' ? 'bg-amber-500' :
-          status === 'skipped' ? 'bg-slate-600' :
-          'bg-transparent'
-        }`} />
+      {/* ================= DESKTOP LAYOUT (sm and up) ================= */}
+      <div className="hidden sm:flex items-center justify-between p-3.5">
+        
+        {/* Clickable info area */}
+        <div 
+          className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"
+          onClick={() => onOpenDetails(item)}
+        >
+          {/* Left indicator line */}
+          <div className={`w-1 h-9 rounded-full flex-shrink-0 ${
+            status === 'watched' ? 'bg-emerald-500' :
+            status === 'watching' ? 'bg-blue-500' :
+            status === 'watchLater' ? 'bg-amber-500' :
+            status === 'skipped' ? 'bg-slate-600' :
+            'bg-transparent'
+          }`} />
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap mb-0.5">
-            {item.subfranchise && (
-              <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.2 rounded">
-                {item.subfranchise}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+              {item.subfranchise && (
+                <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.2 rounded">
+                  {item.subfranchise}
+                </span>
+              )}
+              <span className="text-xs font-mono text-slate-400">
+                {item.year}
               </span>
-            )}
-            <span className="text-xs font-mono text-slate-400">
-              {item.year}
-            </span>
-            <span className="text-[11px] text-slate-500">
-              {item.type}
-            </span>
-            {isSkipped && (
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
-                Skipped
+              <span className="text-[11px] text-slate-500">
+                {item.type}
               </span>
-            )}
+              {isSkipped && (
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
+                  Skipped
+                </span>
+              )}
+            </div>
+
+            <h4 className="font-semibold text-sm sm:text-base text-slate-100 truncate group-hover:text-white transition-colors">
+              {item.title}
+            </h4>
+
+            <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 font-mono text-[11px]">
+              <span className="flex items-center gap-1 text-slate-400">
+                <Clock className="w-3 h-3 text-slate-500" />
+                {item.runtime}
+              </span>
+              <span className="flex items-center gap-1 text-amber-400">
+                <Star className="w-3 h-3 fill-amber-400" />
+                {item.rating}
+              </span>
+              {epProgress && (
+                <span className="text-blue-400">
+                  {epProgress.watched}/{epProgress.total} eps
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Actions */}
+        <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+          {isSkipped ? (
+            <button
+              onClick={() => unskipItem(item.id)}
+              className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-300 hover:text-white bg-[#1E2536] hover:bg-[#2A344A] transition-colors"
+              title="Restore to active list"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Un-skip</span>
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => toggleStatus(item.id, 'watched')}
+                className={`p-1.5 rounded-md text-xs transition-colors ${
+                  status === 'watched'
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-slate-400 hover:text-emerald-400 hover:bg-[#1E2536]'
+                }`}
+                title="Mark Watched"
+              >
+                <Check className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                onClick={() => toggleStatus(item.id, 'watching')}
+                className={`p-1.5 rounded-md text-xs transition-colors ${
+                  status === 'watching'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-slate-400 hover:text-blue-400 hover:bg-[#1E2536]'
+                }`}
+                title="Currently Watching"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+              </button>
+
+              <button
+                onClick={() => toggleStatus(item.id, 'watchLater')}
+                className={`p-1.5 rounded-md text-xs transition-colors ${
+                  status === 'watchLater'
+                    ? 'bg-amber-500 text-white'
+                    : 'text-slate-400 hover:text-amber-400 hover:bg-[#1E2536]'
+                }`}
+                title="Watch Later"
+              >
+                <Bookmark className="w-3.5 h-3.5 fill-current" />
+              </button>
+
+              <button
+                onClick={() => skipItem(item.id)}
+                className="p-1.5 rounded-md text-xs text-slate-400 hover:text-slate-200 hover:bg-[#1E2536] transition-colors"
+                title="Skip (Hides from main list)"
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={() => onOpenDetails(item)}
+            className="p-1.5 text-slate-500 hover:text-slate-300 rounded-md hover:bg-[#1E2536]"
+            title="Details"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+      </div>
+
+
+      {/* ================= MOBILE LAYOUT (clean, touch-friendly) ================= */}
+      <div className="sm:hidden p-3 space-y-2.5">
+        
+        {/* Header & Title */}
+        <div 
+          className="cursor-pointer"
+          onClick={() => onOpenDetails(item)}
+        >
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {item.subfranchise && (
+                <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.5 rounded">
+                  {item.subfranchise}
+                </span>
+              )}
+              <span className="text-[11px] font-mono text-slate-400">
+                {item.year}
+              </span>
+              <span className="text-[11px] text-slate-500">
+                &bull; {item.type}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1 text-[11px] text-slate-400">
+              <span className="text-amber-400 font-mono flex items-center gap-0.5">
+                <Star className="w-3 h-3 fill-amber-400" />
+                {item.rating}
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500 ml-0.5" />
+            </div>
           </div>
 
-          <h4 className="font-semibold text-sm sm:text-base text-slate-100 truncate group-hover:text-white transition-colors">
+          <h4 className="font-semibold text-sm text-slate-100 leading-snug line-clamp-2">
             {item.title}
           </h4>
 
-          <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 font-mono text-[11px]">
+          <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1 font-mono">
             <span className="flex items-center gap-1 text-slate-400">
               <Clock className="w-3 h-3 text-slate-500" />
               {item.runtime}
             </span>
-            <span className="flex items-center gap-1 text-amber-400">
-              <Star className="w-3 h-3 fill-amber-400" />
-              {item.rating}
-            </span>
             {epProgress && (
               <span className="text-blue-400">
-                {epProgress.watched}/{epProgress.total} eps
+                {epProgress.watched}/{epProgress.total} episodes
+              </span>
+            )}
+            {isSkipped && (
+              <span className="text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
+                Skipped
               </span>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 ml-3 flex-shrink-0">
-        {isSkipped ? (
-          <button
-            onClick={() => unskipItem(item.id)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-300 hover:text-white bg-[#1E2536] hover:bg-[#2A344A] transition-colors"
-            title="Restore to active list"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Un-skip</span>
-          </button>
-        ) : (
-          <>
+        {/* Mobile Touch Action Bar */}
+        <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[#1E2536]/80">
+          {isSkipped ? (
             <button
-              onClick={() => toggleStatus(item.id, 'watched')}
-              className={`p-1.5 rounded-md text-xs transition-colors ${
-                status === 'watched'
-                  ? 'bg-emerald-500 text-white'
-                  : 'text-slate-400 hover:text-emerald-400 hover:bg-[#1E2536]'
-              }`}
-              title="Mark Watched"
+              onClick={() => unskipItem(item.id)}
+              className="w-full py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-[#1E2536] active:bg-[#2A344A] flex items-center justify-center gap-1.5"
             >
-              <Check className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Restore to Active List</span>
             </button>
+          ) : (
+            <>
+              <button
+                onClick={() => toggleStatus(item.id, 'watched')}
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                  status === 'watched'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                }`}
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span className="text-[11px]">Watched</span>
+              </button>
 
-            <button
-              onClick={() => toggleStatus(item.id, 'watching')}
-              className={`p-1.5 rounded-md text-xs transition-colors ${
-                status === 'watching'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-slate-400 hover:text-blue-400 hover:bg-[#1E2536]'
-              }`}
-              title="Currently Watching"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-            </button>
+              <button
+                onClick={() => toggleStatus(item.id, 'watching')}
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                  status === 'watching'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                }`}
+              >
+                <Play className="w-3 h-3 fill-current" />
+                <span className="text-[11px]">Watching</span>
+              </button>
 
-            <button
-              onClick={() => toggleStatus(item.id, 'watchLater')}
-              className={`p-1.5 rounded-md text-xs transition-colors ${
-                status === 'watchLater'
-                  ? 'bg-amber-500 text-white'
-                  : 'text-slate-400 hover:text-amber-400 hover:bg-[#1E2536]'
-              }`}
-              title="Watch Later"
-            >
-              <Bookmark className="w-3.5 h-3.5 fill-current" />
-            </button>
+              <button
+                onClick={() => toggleStatus(item.id, 'watchLater')}
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                  status === 'watchLater'
+                    ? 'bg-amber-500 text-white'
+                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                }`}
+              >
+                <Bookmark className="w-3 h-3 fill-current" />
+                <span className="text-[11px]">Later</span>
+              </button>
 
-            <button
-              onClick={() => skipItem(item.id)}
-              className="p-1.5 rounded-md text-xs text-slate-400 hover:text-slate-200 hover:bg-[#1E2536] transition-colors"
-              title="Skip (Hides from main list)"
-            >
-              <SkipForward className="w-3.5 h-3.5" />
-            </button>
-          </>
-        )}
+              <button
+                onClick={() => skipItem(item.id)}
+                className="py-1.5 px-2.5 rounded-lg text-xs font-medium bg-[#151926] text-slate-400 active:bg-[#1E2536] flex items-center justify-center"
+                title="Skip"
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
+        </div>
 
-        <button
-          onClick={() => onOpenDetails(item)}
-          className="p-1.5 text-slate-500 hover:text-slate-300 rounded-md hover:bg-[#1E2536]"
-          title="Details"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
       </div>
 
     </div>
