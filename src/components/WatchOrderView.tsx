@@ -169,7 +169,11 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
           return (
             <div
               key={item.id}
-              className="flex items-center justify-between p-3.5 rounded-xl bg-obsidian-900/80 border border-white/[0.06] hover:border-white/[0.14] transition-all group"
+              className={`flex items-center justify-between p-3.5 rounded-xl transition-all group border ${
+                status === 'watched'
+                  ? 'bg-[#0A130F] border-emerald-500/30 hover:border-emerald-500/45 shadow-[inset_0_1px_0_0_rgba(52,211,153,0.06)]'
+                  : 'bg-obsidian-900/80 border-white/[0.06] hover:border-white/[0.14]'
+              }`}
             >
               <div 
                 className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"

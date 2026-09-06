@@ -123,13 +123,25 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
                 return (
                   <div
                     key={item.id}
-                    className="p-3.5 rounded-xl border border-white/[0.06] bg-obsidian-900/80 hover:border-white/[0.14] transition-all flex flex-col justify-between group"
+                    className={`p-3.5 rounded-xl border transition-all flex flex-col justify-between group ${
+                      status === 'watched'
+                        ? 'bg-[#0A130F] border-emerald-500/30 hover:border-emerald-500/45 shadow-[inset_0_1px_0_0_rgba(52,211,153,0.06)]'
+                        : 'bg-obsidian-900/80 border-white/[0.06] hover:border-white/[0.14]'
+                    }`}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          {item.subfranchise || item.universe || item.type}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {status === 'watched' && (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-mono font-medium text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 rounded">
+                              <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                              Watched
+                            </span>
+                          )}
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                            {item.subfranchise || item.universe || item.type}
+                          </span>
+                        </div>
                         <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400/90 tabular-nums">
                           <Star className="w-3 h-3 fill-amber-400/80" />
                           <span>{item.rating}</span>

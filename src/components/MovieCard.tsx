@@ -33,11 +33,11 @@ export const MovieCard: React.FC<MovieCardProps> = ({
         isSkipped
           ? 'bg-[#0A0C10] border-white/[0.04] opacity-50'
           : status === 'watched'
-          ? 'bg-[#0F1218] border-emerald-500/20 hover:border-emerald-500/30'
+          ? 'bg-[#0A130F] border-emerald-500/30 hover:border-emerald-500/45 shadow-[inset_0_1px_0_0_rgba(52,211,153,0.06)]'
           : status === 'watching'
-          ? 'bg-[#0F131D] border-sky-500/20 hover:border-sky-500/30'
+          ? 'bg-[#0C121D] border-sky-500/25 hover:border-sky-500/35'
           : status === 'watchLater'
-          ? 'bg-[#121115] border-amber-500/20 hover:border-amber-500/30'
+          ? 'bg-[#14120E] border-amber-500/25 hover:border-amber-500/35'
           : 'bg-[#0F1118] border-white/[0.06] hover:border-white/[0.12] hover:bg-[#131622]'
       }`}
     >
@@ -49,16 +49,24 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"
           onClick={() => onOpenDetails(item)}
         >
-          {/* Subtle Status Pip Indicator */}
-          <div className="flex-shrink-0 w-2 flex items-center justify-center">
+          {/* Subtle Status Indicator */}
+          <div className="flex-shrink-0 flex items-center justify-center">
             {status === 'watched' ? (
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+              <div className="w-5 h-5 rounded-md bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-emerald-400" title="Completed">
+                <Check className="w-3 h-3 stroke-[2.5]" />
+              </div>
             ) : status === 'watching' ? (
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.6)]" />
+              <div className="w-5 h-5 rounded-md bg-sky-500/15 border border-sky-500/35 flex items-center justify-center text-sky-400" title="Watching">
+                <Play className="w-2.5 h-2.5 fill-current" />
+              </div>
             ) : status === 'watchLater' ? (
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+              <div className="w-5 h-5 rounded-md bg-amber-500/15 border border-amber-500/35 flex items-center justify-center text-amber-400" title="Watch Later">
+                <Bookmark className="w-2.5 h-2.5 fill-current" />
+              </div>
             ) : (
-              <span className="w-1 h-1 rounded-full bg-white/10 group-hover:bg-white/20" />
+              <div className="w-5 h-5 rounded-md bg-white/[0.02] border border-white/[0.06] flex items-center justify-center text-slate-600 group-hover:border-white/[0.12]">
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+              </div>
             )}
           </div>
 
@@ -188,11 +196,20 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           <div className="flex items-center justify-between gap-2 mb-1">
             <div className="flex items-center gap-1.5 flex-wrap">
               {status === 'watched' ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-0.5" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 rounded">
+                  <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                  Watched
+                </span>
               ) : status === 'watching' ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mr-0.5" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-sky-300 bg-sky-500/15 border border-sky-500/30 px-1.5 py-0.2 rounded">
+                  <Play className="w-2.5 h-2.5 fill-current" />
+                  Watching
+                </span>
               ) : status === 'watchLater' ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-0.5" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 rounded">
+                  <Bookmark className="w-2.5 h-2.5 fill-current" />
+                  Queue
+                </span>
               ) : null}
 
               {item.subfranchise && (
