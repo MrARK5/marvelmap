@@ -70,7 +70,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             return (
               <button
                 key={tab.id}
-                onClick={() => setFilters(prev => ({ ...prev, franchise: tab.id, phase: 'all' }))}
+                onClick={() => setFilters(prev => ({ ...prev, franchise: tab.id }))}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                   isSelected
                     ? 'bg-[#E62429] text-white shadow-sm'
@@ -126,32 +126,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
       </div>
 
-      {/* 3. Dropdowns & Reset: 2-column on mobile, flex on desktop */}
-      <div className="pt-2 border-t border-[#1E2536]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-        
-        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
-          {/* Phase Filter (only for MCU or All) */}
-          {(filters.franchise === 'all' || filters.franchise === 'mcu') ? (
-            <select
-              value={filters.phase}
-              onChange={(e) => setFilters(prev => ({ ...prev, phase: e.target.value }))}
-              className="w-full sm:w-auto bg-[#0A0C10] border border-[#1E2536] rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-[#E62429] cursor-pointer"
-            >
-              <option value="all">All MCU Phases</option>
-              <option value="Phase 1: Avengers Assemble">Phase 1: Assemble</option>
-              <option value="Phase 2: Age of Miracles">Phase 2: Miracles</option>
-              <option value="Phase 3: Infinity War">Phase 3: Infinity War</option>
-              <option value="Phase 4: Multiverse">Phase 4: Multiverse</option>
-              <option value="Phase 5: New Heroes">Phase 5: New Heroes</option>
-              <option value="Phase 6: Battleworld">Phase 6: Battleworld</option>
-            </select>
-          ) : <div className="hidden sm:block" />}
-
-          {/* Sort Option */}
+      {/* 3. Sort & Reset: Simple and compact */}
+      <div className="pt-2 border-t border-[#1E2536]/70 flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-500 text-[11px]">Sort:</span>
           <select
             value={filters.sortBy}
             onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as SortOption }))}
-            className="w-full sm:w-auto bg-[#0A0C10] border border-[#1E2536] rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-[#E62429] cursor-pointer"
+            className="bg-[#0A0C10] border border-[#1E2536] rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-[#E62429] cursor-pointer"
           >
             {sortOptions.map(s => (
               <option key={s.id} value={s.id}>{s.label}</option>
@@ -159,17 +141,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </select>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
+        <div className="flex items-center gap-3">
           <span className="text-xs text-slate-400 font-mono sm:hidden">
             {totalMatches} {filters.status === 'skipped' ? 'skipped' : 'titles'}
           </span>
 
-          {(filters.franchise !== 'all' || filters.phase !== 'all' || filters.status !== 'all' || filters.searchQuery) && (
+          {(filters.franchise !== 'all' || filters.status !== 'all' || filters.searchQuery) && (
             <button
               onClick={() => setFilters(prev => ({
                 ...prev,
                 franchise: 'all',
-                phase: 'all',
                 status: 'all',
                 searchQuery: '',
               }))}
@@ -180,7 +161,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </button>
           )}
         </div>
-
       </div>
 
     </div>

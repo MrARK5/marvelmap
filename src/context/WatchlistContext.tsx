@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { MARVEL_CATALOG, MARVEL_PHASES } from '../data/marvelCatalog';
+import { MARVEL_CATALOG } from '../data/marvelCatalog';
 import { MarvelItem, WatchStatus, WatchStats } from '../types/marvel';
 import { useAuth } from './AuthContext';
 import { saveUserData, loadUserData } from '../lib/firebase';
@@ -315,11 +315,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return h + m / 60;
     };
 
-    const phaseMap: Record<string, { total: number; watched: number }> = {};
-    MARVEL_PHASES.forEach(p => {
-      phaseMap[p] = { total: 0, watched: 0 };
-    });
-
     MARVEL_CATALOG.forEach(item => {
       const status = data.statusMap[item.id] || 'unwatched';
       const hours = parseHours(item.runtime);
@@ -328,15 +323,9 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (item.type === 'Movie') totalMovies++;
       if (item.type === 'TV Show') totalShows++;
 
-      if (!phaseMap[item.phase]) {
-        phaseMap[item.phase] = { total: 0, watched: 0 };
-      }
-      phaseMap[item.phase].total++;
-
       if (status === 'watched') {
         watchedCount++;
         watchedHours += hours;
-        phaseMap[item.phase].watched++;
         if (item.type === 'Movie') moviesWatched++;
         if (item.type === 'TV Show') showsWatched++;
       } else if (status === 'watching') {
@@ -359,16 +348,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const activeItems = Math.max(MARVEL_CATALOG.length - skippedCount, 0);
     const completionPercentage = activeItems > 0 ? Math.round((watchedCount / activeItems) * 100) : 0;
 
-    const phaseProgress = MARVEL_PHASES.map(p => {
-      const cur = phaseMap[p] || { total: 0, watched: 0 };
-      return {
-        phase: p,
-        total: cur.total,
-        watched: cur.watched,
-        percentage: cur.total > 0 ? Math.round((cur.watched / cur.total) * 100) : 0,
-      };
-    });
-
     return {
       totalItems: MARVEL_CATALOG.length,
       activeItems,
@@ -383,7 +362,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       totalMovies,
       showsWatched,
       totalShows,
-      phaseProgress,
     };
   }, [data]);
 

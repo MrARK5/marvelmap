@@ -44,7 +44,6 @@ export interface FilterState {
   status: WatchStatus | 'all';
   franchise: MarvelFranchise;
   type?: MarvelType | 'all';
-  phase: string;
   sortBy: SortOption;
   viewMode?: 'list' | 'grid';
 }
@@ -63,10 +62,4 @@ export interface WatchStats {
   totalMovies: number;
   showsWatched: number;
   totalShows: number;
-  phaseProgress: Array<{
-    phase: string;
-    total: number;
-    watched: number;
-    percentage: number;
-  }>;
 }

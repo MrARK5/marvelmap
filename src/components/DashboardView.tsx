@@ -69,7 +69,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
             <span>Watch Progress Dashboard</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Overview of completed content, viewing time, and phase progression.
+            Overview of completed content, viewing time, and watchlist statistics.
           </p>
         </div>
 
@@ -227,43 +227,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
 
       </div>
 
-      {/* Phase Progression */}
-      <div className="p-5 rounded-xl bg-[#11141E] border border-[#1E2536] space-y-4">
-        <div>
-          <h3 className="text-sm font-bold text-white">
-            Progress by Era & Phase
-          </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Completion metrics for each phase in the collection.
-          </p>
-        </div>
 
-        <div className="space-y-3">
-          {stats.phaseProgress.map((p) => {
-            const isFinished = p.percentage === 100 && p.total > 0;
-
-            return (
-              <div key={p.phase} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-slate-300">{p.phase}</span>
-                  <span className="font-mono text-slate-400">
-                    {p.watched} / {p.total} ({p.percentage}%)
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      isFinished ? 'bg-emerald-500' : 'bg-[#E62429]'
-                    }`}
-                    style={{ width: `${p.percentage}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Footer Reset Tool */}
       <div className="flex justify-end pt-2">

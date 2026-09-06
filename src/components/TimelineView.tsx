@@ -8,7 +8,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { MarvelItem } from '../types/marvel';
-import { MARVEL_CATALOG, MARVEL_PHASES } from '../data/marvelCatalog';
+import { MARVEL_CATALOG } from '../data/marvelCatalog';
 import { useWatchlist } from '../context/WatchlistContext';
 
 interface TimelineViewProps {
@@ -18,7 +18,6 @@ interface TimelineViewProps {
 export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => {
   const { getStatus, toggleStatus } = useWatchlist();
   const [timelineMode, setTimelineMode] = useState<'release' | 'chronological'>('release');
-  const [phaseFilter, setPhaseFilter] = useState<string>('all');
 
   const timelineItems = useMemo(() => {
     let items = [...MARVEL_CATALOG];
@@ -44,12 +43,8 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
       });
     }
 
-    if (phaseFilter !== 'all') {
-      items = items.filter(i => i.phase === phaseFilter);
-    }
-
     return items;
-  }, [timelineMode, phaseFilter]);
+  }, [timelineMode]);
 
   const groupedByYear = useMemo(() => {
     const groups: { [year: string]: MarvelItem[] } = {};
@@ -79,18 +74,6 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Phase Filter */}
-          <select
-            value={phaseFilter}
-            onChange={(e) => setPhaseFilter(e.target.value)}
-            className="bg-[#0A0C10] border border-[#1E2536] rounded-md px-2.5 py-1 text-xs text-slate-300 focus:outline-none focus:border-[#E62429]"
-          >
-            <option value="all">All Phases</option>
-            {MARVEL_PHASES.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-
           {/* Mode Switcher */}
           <div className="flex items-center bg-[#0A0C10] p-0.5 rounded-md border border-[#1E2536]">
             <button
@@ -153,7 +136,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="text-[10px] font-mono text-slate-400">
-                          {item.phase.split(':')[0]}
+                          {item.subfranchise || item.universe || item.type}
                         </span>
                         <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400">
                           <Star className="w-3 h-3 fill-amber-400" />

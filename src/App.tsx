@@ -19,7 +19,6 @@ export const App: React.FC = () => {
     searchQuery: '',
     status: 'all',
     franchise: 'all',
-    phase: 'all',
     sortBy: 'order',
     viewMode: 'list',
   });
@@ -51,11 +50,6 @@ export const App: React.FC = () => {
         if (!matchesTitle && !matchesUniverse && !matchesSub && !matchesYear) {
           return false;
         }
-      }
-
-      // Phase
-      if (filters.phase !== 'all') {
-        if (item.phase !== filters.phase) return false;
       }
 
       return true;
@@ -145,7 +139,7 @@ export const App: React.FC = () => {
             </p>
             {(filters.franchise !== 'all' || filters.status !== 'all') && (
               <button
-                onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all', phase: 'all' }))}
+                onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all' }))}
                 className="mt-2 px-3.5 py-1.5 rounded-xl bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
               >
                 Reset to All Titles

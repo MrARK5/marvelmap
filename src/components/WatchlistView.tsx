@@ -166,7 +166,7 @@ export const WatchlistView: React.FC<WatchlistViewProps> = ({
                 >
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[10px] font-mono text-slate-500">
-                      {item.phase.split(':')[0]}
+                      {item.subfranchise || item.universe || item.type}
                     </span>
                     <span className="text-xs font-mono text-slate-400">
                       {item.year}

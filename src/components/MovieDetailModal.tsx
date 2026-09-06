@@ -108,9 +108,11 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
           </button>
 
           <div className="flex flex-wrap items-center gap-2 mb-1.5 pr-8">
-            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded border border-red-500/30 text-red-400 bg-red-500/5">
-              {item.phase}
-            </span>
+            {(item.subfranchise || item.universe) && (
+              <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded border border-red-500/30 text-red-400 bg-red-500/5">
+                {item.subfranchise || item.universe}
+              </span>
+            )}
             <span className="text-[11px] font-medium text-slate-400 px-2 py-0.5 rounded bg-[#0A0C10] border border-[#1E2536]">
               {item.type}
             </span>

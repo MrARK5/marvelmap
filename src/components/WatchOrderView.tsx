@@ -37,7 +37,7 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
       title: 'Mainline Release Order',
       subtitle: 'Theatrical & Disney+ Order',
       tag: 'Classic',
-      description: 'Follow the MCU as released in theaters and streaming from Iron Man (2008) through Phase 6.',
+      description: 'Follow the MCU as released in theaters and streaming from Iron Man (2008) to present day.',
     },
     {
       id: 'chronological' as OrderType,
@@ -80,7 +80,7 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
     }
     if (selectedOrder === 'infinity-core') {
       return MARVEL_CATALOG.filter(
-        i => i.isEssential && (i.phase.includes('Phase 1') || i.phase.includes('Phase 2') || i.phase.includes('Phase 3'))
+        i => i.isEssential && i.isMCU && i.year <= 2019
       ).sort((a, b) => a.order - b.order);
     }
     return MARVEL_CATALOG;
@@ -193,7 +193,7 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[10px] font-mono text-slate-500">
-                      {item.phase.split(':')[0]}
+                      {item.subfranchise || item.universe || item.type}
                     </span>
                     <span className="text-xs font-mono text-slate-400">
                       {item.year}
