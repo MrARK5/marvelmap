@@ -74,6 +74,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 userNotes: userCloudData.userNotes || {},
               });
             } else {
+              // First time sign in: transfer guest progress to this account
               await saveUserData(user.uid, {
                 statusMap: data.statusMap,
                 episodeStatusMap: data.episodeStatusMap,
@@ -90,6 +91,23 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setIsSyncing(false);
           }
         }
+      } else {
+        // User logged out: restore guest session cleanly
+        try {
+          const saved = localStorage.getItem(GUEST_STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            setData({
+              statusMap: parsed.statusMap || {},
+              episodeStatusMap: parsed.episodeStatusMap || {},
+              userNotes: parsed.userNotes || {},
+            });
+          } else {
+            setData({ statusMap: {}, episodeStatusMap: {}, userNotes: {} });
+          }
+        } catch {
+          setData({ statusMap: {}, episodeStatusMap: {}, userNotes: {} });
+        }
       }
     }
 
@@ -99,31 +117,32 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Persist locally & to Cloud
   useEffect(() => {
-    try {
-      localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.error('Failed to write to localStorage', e);
+    if (!user) {
+      try {
+        localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Failed to write to localStorage', e);
+      }
+      return;
     }
 
-    if (user) {
-      setIsSavingToCloud(true);
-      const timer = setTimeout(async () => {
-        try {
-          await saveUserData(user.uid, {
-            statusMap: data.statusMap,
-            episodeStatusMap: data.episodeStatusMap,
-            userNotes: data.userNotes,
-            updatedAt: new Date().toISOString(),
-          });
-        } catch (e) {
-          console.error('Auto cloud sync failed', e);
-        } finally {
-          setIsSavingToCloud(false);
-        }
-      }, 500);
+    setIsSavingToCloud(true);
+    const timer = setTimeout(async () => {
+      try {
+        await saveUserData(user.uid, {
+          statusMap: data.statusMap,
+          episodeStatusMap: data.episodeStatusMap,
+          userNotes: data.userNotes,
+          updatedAt: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error('Auto cloud sync failed', e);
+      } finally {
+        setIsSavingToCloud(false);
+      }
+    }, 500);
 
-      return () => clearTimeout(timer);
-    }
+    return () => clearTimeout(timer);
   }, [data, user?.uid]);
 
   const getStatus = useCallback((id: string): WatchStatus => {
