@@ -65,7 +65,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <button
               key={tab.id}
               onClick={() => setFilters(prev => ({ ...prev, franchise: tab.id }))}
-              className={`flex-shrink-0 px-2.5 py-1.2 rounded-lg text-xs font-medium transition-all ${
+              className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 isSelected
                   ? 'bg-white/[0.1] text-white shadow-subtle border border-white/[0.12]'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] border border-transparent'

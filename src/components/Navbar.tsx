@@ -29,24 +29,44 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { user, signOut } = useAuth();
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(Boolean(searchQuery));
+  const [avatarError, setAvatarError] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard shortcut / to focus search
+  // Reset avatar error state if user changes
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.photoURL]);
+
+  // Keyboard shortcut / to focus search and outside click listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
         e.preventDefault();
         searchInputRef.current?.focus();
-        setIsMobileSearchOpen(true);
       }
       if (e.key === 'Escape') {
         setShowToolsMenu(false);
         setShowUserMenu(false);
       }
     };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+        setShowToolsMenu(false);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleExport = () => {
@@ -89,109 +109,111 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-4xl mx-auto px-3 sm:px-6">
         
         {/* Main Bar */}
-        <div className="flex items-center justify-between h-14 sm:h-15 gap-2 sm:gap-4">
+        <div className="flex items-center justify-between h-14 sm:h-15 gap-2 sm:gap-3">
           
-          {/* Brand - Editorial Minimalist Logo */}
+          {/* Brand - Minimalist Wordmark */}
           <div className="flex items-center select-none flex-shrink-0 cursor-pointer">
             <div className="flex items-center tracking-tight">
               <span className="font-extrabold text-[13px] tracking-[0.14em] text-white">MARVEL</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E62429] mx-1.5" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E62429] mx-1 sm:mx-1.5" />
               <span className="font-light text-[12px] tracking-[0.18em] text-slate-400">MAP</span>
             </div>
           </div>
 
-          {/* Desktop Search Bar (Linear / Raycast Style) */}
-          <div className="hidden sm:block relative flex-1 max-w-sm">
+          {/* Search Bar (Unified & Responsive) */}
+          <div className="relative flex-1 max-w-xs sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search title, series, year..."
-              className="w-full bg-[#0F1118] border border-white/[0.08] hover:border-white/[0.14] rounded-lg pl-8.5 pr-14 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/25 focus:bg-[#12141E] transition-all"
+              placeholder="Search titles, year..."
+              className="w-full bg-[#0F1118] border border-white/[0.08] hover:border-white/[0.14] rounded-lg pl-9 pr-9 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/25 focus:bg-[#12141E] transition-all"
             />
             {searchQuery ? (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
+                onClick={() => {
+                  setSearchQuery('');
+                  searchInputRef.current?.focus();
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5 rounded transition-colors"
+                title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-white/[0.04] border border-white/[0.08] px-1.5 py-0.5 rounded pointer-events-none">
+              <span className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-white/[0.04] border border-white/[0.08] px-1.5 py-0.5 rounded pointer-events-none">
                 /
               </span>
             )}
           </div>
 
-          {/* Minimalist Progress Pill */}
-          <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#0F1118] border border-white/[0.06] text-xs flex-shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/90" />
-            <span className="text-slate-300 font-mono text-[11px] tabular-nums">
-              {stats.watchedCount} / {stats.activeItems}
-            </span>
-            <span className="text-slate-500 font-mono text-[11px] tabular-nums">
-              ({stats.completionPercentage}%)
-            </span>
-            {stats.skippedCount > 0 && (
-              <span className="text-slate-500 text-[10px] pl-1.5 border-l border-white/[0.08] font-mono">
-                {stats.skippedCount} skipped
-              </span>
-            )}
-          </div>
-
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             
-            {/* Mobile Search Toggle */}
-            <button
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className={`sm:hidden p-2 rounded-lg border transition-colors ${
-                isMobileSearchOpen || searchQuery
-                  ? 'bg-[#151824] border-white/20 text-white'
-                  : 'bg-[#0F1118] border-white/[0.06] text-slate-400 hover:text-white'
-              }`}
-              title="Search"
-            >
-              <Search className="w-3.5 h-3.5" />
-            </button>
-
             {/* User Auth Pill / Profile Menu */}
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 rounded-lg bg-[#0F1118] border border-white/[0.08] hover:border-white/20 text-xs text-slate-200 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 p-1 sm:px-2.5 sm:py-1 rounded-lg bg-[#0F1118] border border-white/[0.08] hover:border-white/20 text-xs text-slate-200 transition-colors"
                   title={user.email}
                 >
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Avatar" className="w-4.5 h-4.5 rounded-full" />
-                  ) : (
-                    <div className="w-4.5 h-4.5 rounded-full bg-[#E62429] text-white flex items-center justify-center font-bold text-[9px] uppercase">
-                      {(user.displayName || user.email)[0]}
-                    </div>
-                  )}
+                  <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-obsidian-950 border border-white/10 flex items-center justify-center">
+                    {user.photoURL && !avatarError ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt="Avatar" 
+                        referrerPolicy="no-referrer"
+                        onError={() => setAvatarError(true)}
+                        className="w-full h-full object-cover rounded-full" 
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#E62429] text-white flex items-center justify-center font-bold text-[10px] uppercase select-none">
+                        {(user.displayName || user.email || 'U')[0]}
+                      </div>
+                    )}
+                  </div>
                   <span className="hidden sm:inline max-w-[85px] truncate text-[11px] font-medium text-slate-300">
                     {user.displayName || user.email.split('@')[0]}
                   </span>
-                  <Cloud className={`w-3 h-3 ml-0.5 ${isSavingToCloud ? 'animate-pulse text-sky-400' : 'text-emerald-400'}`} />
+                  <Cloud className={`w-3.5 h-3.5 ml-0.5 shrink-0 ${isSavingToCloud ? 'animate-pulse text-sky-400' : 'text-emerald-400'}`} />
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-1.5 w-48 bg-[#0F1118] border border-white/[0.1] rounded-xl shadow-modal py-1 z-50 text-xs backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-3 py-2 border-b border-white/[0.06]">
-                      <div className="font-semibold text-white truncate text-[12px]">
-                        {user.displayName || 'User'}
+                  <div className="absolute right-0 mt-1.5 w-52 bg-[#0F1118] border border-white/[0.1] rounded-xl shadow-modal py-1 z-50 text-xs backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100">
+                    <div className="px-3 py-2.5 border-b border-white/[0.06] flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-obsidian-950 border border-white/10 flex items-center justify-center">
+                        {user.photoURL && !avatarError ? (
+                          <img 
+                            src={user.photoURL} 
+                            alt="Avatar" 
+                            referrerPolicy="no-referrer"
+                            onError={() => setAvatarError(true)}
+                            className="w-full h-full object-cover rounded-full" 
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#E62429] text-white flex items-center justify-center font-bold text-[10px] uppercase">
+                            {(user.displayName || user.email || 'U')[0]}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate mt-0.5">
-                        {user.email}
-                      </div>
-                      <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        <span>Cloud Sync Active</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-white truncate text-[12px]">
+                          {user.displayName || 'Marvel Fan'}
+                        </div>
+                        <div className="text-[11px] text-slate-400 truncate">
+                          {user.email}
+                        </div>
                       </div>
                     </div>
+                    <div className="px-3 py-1.5 flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span>Cloud Sync Active</span>
+                    </div>
+
+                    <div className="border-t border-white/[0.06] my-1" />
 
                     <button
                       onClick={() => {
@@ -209,7 +231,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F1118] hover:bg-[#151824] text-slate-200 hover:text-white text-xs font-medium transition-colors border border-white/[0.08]"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#0F1118] hover:bg-[#151824] text-slate-200 hover:text-white text-xs font-medium transition-colors border border-white/[0.08]"
               >
                 <User className="w-3.5 h-3.5 text-slate-400" />
                 <span>Sign In</span>
@@ -217,10 +239,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
 
             {/* Options Tool Menu */}
-            <div className="relative">
+            <div className="relative" ref={toolsMenuRef}>
               <button
                 onClick={() => setShowToolsMenu(!showToolsMenu)}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-200 bg-[#0F1118] border border-white/[0.08] hover:border-white/20 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-slate-200 bg-[#0F1118] border border-white/[0.08] hover:border-white/20 transition-colors"
                 title="Options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
@@ -260,31 +282,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
         </div>
-
-        {/* Mobile Search Input Drawer */}
-        {isMobileSearchOpen && (
-          <div className="sm:hidden pb-3 pt-0.5">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-              <input
-                type="text"
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search movies, series, universe..."
-                className="w-full bg-[#0F1118] border border-white/[0.12] rounded-lg pl-8.5 pr-8 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/30"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        )}
 
       </div>
     </header>
