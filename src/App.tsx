@@ -76,7 +76,7 @@ export const App: React.FC = () => {
   }, [filters, getStatus]);
 
   return (
-    <div className="min-h-screen bg-[#0A0C10] text-slate-100 flex flex-col font-sans selection:bg-[#E62429] selection:text-white">
+    <div className="min-h-screen bg-[#08090C] text-slate-100 flex flex-col font-sans selection:bg-[#E62429] selection:text-white">
       
       {/* Minimal Header */}
       <Navbar
@@ -86,27 +86,29 @@ export const App: React.FC = () => {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 pt-4 pb-12 space-y-3.5">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 pt-3 pb-16 space-y-3">
         
-        {/* Progress Card */}
-        <div className="p-3 sm:p-4 rounded-2xl bg-[#11141E] border border-[#1E2536] space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
-          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
-            <div className="text-xs font-semibold text-slate-200">
-              Watch Progress
-            </div>
-            <div className="text-xs text-slate-400 font-mono">
-              <strong className="text-white">{stats.watchedCount}</strong> of {stats.activeItems} ({stats.completionPercentage}%)
-            </div>
+        {/* Minimal Progress Meter */}
+        <div className="flex items-center justify-between px-1 py-1 text-xs text-slate-400">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-medium text-slate-300">Progress</span>
+            <span className="text-slate-600">&bull;</span>
+            <span className="font-mono text-[11px] text-slate-400 tabular-nums">
+              <strong className="text-white font-medium">{stats.watchedCount}</strong> of {stats.activeItems} ({stats.completionPercentage}%)
+            </span>
             {stats.skippedCount > 0 && (
-              <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
-                &bull; {stats.skippedCount} skipped
-              </span>
+              <>
+                <span className="text-slate-600 hidden sm:inline">&bull;</span>
+                <span className="text-slate-500 font-mono text-[11px] hidden sm:inline">
+                  {stats.skippedCount} skipped
+                </span>
+              </>
             )}
           </div>
 
-          <div className="w-full sm:w-48 h-2 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
+          <div className="w-24 sm:w-36 h-1 bg-white/[0.06] rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+              className="h-full bg-emerald-400/90 rounded-full transition-all duration-300"
               style={{ width: `${stats.completionPercentage}%` }}
             />
           </div>
@@ -119,35 +121,35 @@ export const App: React.FC = () => {
           totalMatches={filteredItems.length}
         />
 
-        {/* Skipped notice banner */}
+        {/* Skipped Notice Banner */}
         {filters.status === 'skipped' && (
-          <div className="p-3 rounded-xl bg-[#11141E] border border-[#1E2536] flex items-center gap-2.5 text-xs text-slate-400">
-            <SkipForward className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <div className="p-3 rounded-xl bg-[#0F1118] border border-white/[0.06] flex items-center gap-2.5 text-xs text-slate-400">
+            <SkipForward className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
             <span>
-              These titles are marked as skipped and will <strong>not appear</strong> on your default watchlist. You can restore any title back to your active list at any time.
+              Skipped titles are hidden from the active watchlist. Tap <strong className="text-slate-200">Un-skip</strong> on any title to restore it.
             </span>
           </div>
         )}
 
         {/* Titles List */}
         {filteredItems.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center rounded-2xl bg-[#11141E] border border-[#1E2536] space-y-2">
+          <div className="p-10 sm:p-14 text-center rounded-xl bg-[#0F1118] border border-white/[0.06] space-y-2.5">
             <p className="text-xs sm:text-sm text-slate-400">
               {filters.status === 'skipped'
-                ? 'No skipped titles in this collection.'
-                : 'No titles match your current filters.'}
+                ? 'No skipped titles found in this universe.'
+                : 'No titles match your current search or filters.'}
             </p>
-            {(filters.franchise !== 'all' || filters.status !== 'all') && (
+            {(filters.franchise !== 'all' || filters.status !== 'all' || filters.searchQuery) && (
               <button
-                onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all' }))}
-                className="mt-2 px-3.5 py-1.5 rounded-xl bg-[#1E2536] hover:bg-[#2A344A] text-white text-xs font-medium transition-colors"
+                onClick={() => setFilters(prev => ({ ...prev, franchise: 'all', status: 'all', searchQuery: '' }))}
+                className="mt-1 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-medium border border-white/[0.08] transition-colors"
               >
-                Reset to All Titles
+                Reset All Filters
               </button>
             )}
           </div>
         ) : (
-          <div className="space-y-2 sm:space-y-2.5">
+          <div className="space-y-1.5 sm:space-y-2">
             {filteredItems.map(item => (
               <MovieCard
                 key={item.id}
@@ -177,8 +179,8 @@ export const App: React.FC = () => {
       />
 
       {/* Minimal Footer */}
-      <footer className="border-t border-[#1E2536] py-6 text-center text-[11px] text-slate-600">
-        MarvelMap &bull; Minimalist Marvel Cinematic Watchlist
+      <footer className="border-t border-white/[0.04] py-6 text-center text-[11px] text-slate-600 font-mono">
+        MARVELMAP &bull; MINIMALIST CINEMATIC WATCHLIST
       </footer>
 
     </div>

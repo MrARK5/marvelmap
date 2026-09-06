@@ -83,18 +83,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
       
       {/* Backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-md bg-[#11141E] border border-[#1E2536] rounded-2xl shadow-2xl p-5 sm:p-6 z-10 space-y-4 my-auto">
+      <div className="relative w-full max-w-md bg-[#0B0D14] border border-white/[0.08] rounded-2xl shadow-modal p-5 sm:p-6 z-10 space-y-4 my-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-base sm:text-lg text-white">
+            <h3 className="font-bold text-base text-white tracking-tight">
               {mode === 'signin' ? 'Sign In to MarvelMap' : 'Create an Account'}
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
@@ -104,7 +104,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E2536] transition-colors"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -112,8 +112,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         {/* Error Alert */}
         {error && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-950/40 border border-red-500/30 text-xs text-red-300">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs text-rose-300">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
             <span>{error}</span>
           </div>
         )}
@@ -123,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={googleLoading || loading}
-          className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-colors shadow-sm disabled:opacity-75 active:scale-[0.98]"
+          className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-colors shadow-subtle disabled:opacity-75 active:scale-[0.98]"
         >
           {googleLoading ? (
             <>
@@ -157,20 +157,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         {/* Divider */}
         <div className="relative flex items-center justify-center my-2">
-          <div className="border-t border-[#1E2536] w-full" />
-          <span className="bg-[#11141E] px-2 text-[11px] text-slate-500 uppercase tracking-wider font-mono">
+          <div className="border-t border-white/[0.06] w-full" />
+          <span className="bg-[#0B0D14] px-2 text-[10px] text-slate-500 uppercase tracking-widest font-mono">
             or email
           </span>
         </div>
 
         {/* Tab selector */}
-        <div className="flex items-center bg-[#0A0C10] p-1 rounded-xl border border-[#1E2536]">
+        <div className="flex items-center bg-[#08090C] p-1 rounded-xl border border-white/[0.06]">
           <button
             type="button"
             onClick={() => { setMode('signin'); setError(null); }}
             className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               mode === 'signin'
-                ? 'bg-[#1E2536] text-white'
+                ? 'bg-white/[0.08] text-white border border-white/[0.1]'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -181,7 +181,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             onClick={() => { setMode('signup'); setError(null); }}
             className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               mode === 'signup'
-                ? 'bg-[#1E2536] text-white'
+                ? 'bg-white/[0.08] text-white border border-white/[0.1]'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -193,8 +193,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-3">
           {mode === 'signup' && (
             <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                Your Name (Optional)
+              <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1">
+                Your Name
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
@@ -203,14 +203,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Peter Parker"
-                  className="w-full bg-[#0A0C10] border border-[#1E2536] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#E62429]"
+                  className="w-full bg-[#08090C] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/30"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1">
               Email Address
             </label>
             <div className="relative">
@@ -221,13 +221,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full bg-[#0A0C10] border border-[#1E2536] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#E62429]"
+                className="w-full bg-[#08090C] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1">
               Password
             </label>
             <div className="relative">
@@ -238,7 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full bg-[#0A0C10] border border-[#1E2536] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#E62429]"
+                className="w-full bg-[#08090C] border border-white/[0.08] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-white/30"
               />
             </div>
           </div>
@@ -246,7 +246,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading || googleLoading}
-            className="w-full py-2.5 rounded-xl bg-[#E62429] hover:bg-[#CC1E23] text-white text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2 mt-3 disabled:opacity-50"
+            className="w-full py-2.5 rounded-xl bg-white hover:bg-slate-200 text-slate-950 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2 mt-3 disabled:opacity-50 shadow-subtle active:scale-[0.98]"
           >
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             <span>{mode === 'signin' ? 'Sign In with Email' : 'Create Account'}</span>

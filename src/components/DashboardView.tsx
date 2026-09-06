@@ -59,12 +59,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-4 max-w-4xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-[#0F1118] border border-white/[0.06]">
         <div>
-          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-base font-bold text-white flex items-center gap-2 tracking-tight">
             <BarChart2 className="w-4 h-4 text-[#E62429]" />
             <span>Watch Progress Dashboard</span>
           </h2>
@@ -76,14 +76,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleExport}
-            className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-[#0A0C10] border border-[#1E2536] text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#08090C] border border-white/[0.08] hover:border-white/20 text-slate-300 hover:text-white transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-slate-400" />
             <span>Export</span>
           </button>
           <button
             onClick={handleImport}
-            className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-[#0A0C10] border border-[#1E2536] text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#08090C] border border-white/[0.08] hover:border-white/20 text-slate-300 hover:text-white transition-colors"
           >
             <Upload className="w-3.5 h-3.5 text-slate-400" />
             <span>Import</span>
@@ -92,10 +92,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
       </div>
 
       {/* Account Cloud Status Banner */}
-      <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-xl bg-[#0F1118] border border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg border ${
-            user ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+            user ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-sky-500/10 border-sky-500/20 text-sky-400'
           }`}>
             {user ? <UserCheck className="w-4 h-4" /> : <Cloud className="w-4 h-4" />}
           </div>
@@ -105,8 +105,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
             </div>
             <div className="text-[11px] text-slate-400">
               {user ? (
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <Check className="w-3 h-3" />
+                <span className="flex items-center gap-1.5 text-emerald-400 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span>
                     {isSavingToCloud ? 'Saving changes to cloud...' : 'Cross-device cloud sync active'}
                   </span>
@@ -121,7 +121,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
         {!user && (
           <button
             onClick={onOpenAuth}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#E62429] hover:bg-[#CC1E23] text-white text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-200 text-slate-950 text-xs font-semibold transition-colors shadow-subtle"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Sign In / Create Account</span>
@@ -130,31 +130,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
-          <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06]">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
             Completion
           </div>
-          <div className="text-2xl font-bold font-mono text-white">
+          <div className="text-2xl font-bold font-mono text-white tabular-nums">
             {stats.completionPercentage}%
           </div>
-          <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+          <div className="text-[11px] text-slate-500 font-mono mt-0.5 tabular-nums">
             {stats.watchedCount} of {stats.totalItems}
           </div>
-          <div className="w-full h-1 bg-[#0A0C10] rounded-full overflow-hidden mt-3 border border-[#1E2536]">
+          <div className="w-full h-1 bg-[#08090C] rounded-full overflow-hidden mt-3 border border-white/[0.04]">
             <div
-              className="h-full bg-emerald-500 rounded-full"
+              className="h-full bg-emerald-400 rounded-full"
               style={{ width: `${stats.completionPercentage}%` }}
             />
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
-          <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06]">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
             In Progress
           </div>
-          <div className="text-2xl font-bold font-mono text-blue-400">
+          <div className="text-2xl font-bold font-mono text-sky-400 tabular-nums">
             {stats.watchingCount}
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">
@@ -162,11 +162,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
-          <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06]">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
             Watch Later
           </div>
-          <div className="text-2xl font-bold font-mono text-amber-400">
+          <div className="text-2xl font-bold font-mono text-amber-400 tabular-nums">
             {stats.watchLaterCount}
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">
@@ -174,14 +174,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
-          <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06]">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
             Watch Time
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-200">
+          <div className="text-2xl font-bold font-mono text-slate-200 tabular-nums">
             ~{stats.watchedHours}h
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-slate-500 mt-0.5 tabular-nums">
             of ~{stats.totalHours}h total
           </div>
         </div>
@@ -189,51 +189,49 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onOpenAuth }) => {
       </div>
 
       {/* Movies vs TV Shows Breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536] flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-[#0A0C10] border border-[#1E2536] text-slate-400">
-              <Film className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-[#08090C] border border-white/[0.06] text-slate-400">
+              <Film className="w-4 h-4" />
             </div>
             <div>
               <div className="text-xs font-semibold text-white">Movies</div>
-              <div className="text-xs text-slate-400 font-mono">
+              <div className="text-xs text-slate-400 font-mono tabular-nums">
                 {stats.moviesWatched} / {stats.totalMovies} watched
               </div>
             </div>
           </div>
-          <div className="text-sm font-bold font-mono text-slate-300">
+          <div className="text-sm font-bold font-mono text-slate-300 tabular-nums">
             {stats.totalMovies > 0 ? Math.round((stats.moviesWatched / stats.totalMovies) * 100) : 0}%
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536] flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-[#0F1118] border border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-[#0A0C10] border border-[#1E2536] text-slate-400">
-              <Tv className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-[#08090C] border border-white/[0.06] text-slate-400">
+              <Tv className="w-4 h-4" />
             </div>
             <div>
               <div className="text-xs font-semibold text-white">TV Series</div>
-              <div className="text-xs text-slate-400 font-mono">
+              <div className="text-xs text-slate-400 font-mono tabular-nums">
                 {stats.showsWatched} / {stats.totalShows} watched
               </div>
             </div>
           </div>
-          <div className="text-sm font-bold font-mono text-slate-300">
+          <div className="text-sm font-bold font-mono text-slate-300 tabular-nums">
             {stats.totalShows > 0 ? Math.round((stats.showsWatched / stats.totalShows) * 100) : 0}%
           </div>
         </div>
 
       </div>
 
-
-
       {/* Footer Reset Tool */}
       <div className="flex justify-end pt-2">
         <button
           onClick={resetAllProgress}
-          className="text-xs text-slate-500 hover:text-red-400 flex items-center gap-1.5 transition-colors"
+          className="text-xs text-slate-500 hover:text-rose-400 flex items-center gap-1.5 transition-colors"
         >
           <RotateCcw className="w-3 h-3" />
           <span>Reset All Data</span>

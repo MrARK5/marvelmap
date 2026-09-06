@@ -5,7 +5,7 @@ import {
   Bookmark, 
   SkipForward, 
   RotateCcw, 
-  Shield 
+  SlidersHorizontal 
 } from 'lucide-react';
 import { FilterState, MarvelFranchise, SortOption, WatchStatus } from '../types/marvel';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -27,17 +27,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     { id: 'all', label: 'All Universes' },
     { id: 'mcu', label: 'Avengers / MCU' },
     { id: 'x-men', label: 'X-Men' },
-    { id: 'legacy', label: 'Legacy (Blade, etc.)' },
+    { id: 'legacy', label: 'Legacy Classics' },
     { id: 'spiderman', label: 'Spider-Man' },
     { id: 'animated', label: '90s Animated' },
   ];
 
-  const statusTabs: { id: WatchStatus | 'all'; label: string; count?: number; icon?: React.ElementType }[] = [
+  const statusTabs: { 
+    id: WatchStatus | 'all'; 
+    label: string; 
+    count?: number; 
+    dotColor?: string;
+  }[] = [
     { id: 'all', label: 'All Active' },
-    { id: 'watching', label: 'Watching', count: stats.watchingCount, icon: Play },
-    { id: 'watchLater', label: 'Watch Later', count: stats.watchLaterCount, icon: Bookmark },
-    { id: 'watched', label: 'Watched', count: stats.watchedCount, icon: Check },
-    { id: 'skipped', label: 'Skipped', count: stats.skippedCount, icon: SkipForward },
+    { id: 'watching', label: 'Watching', count: stats.watchingCount, dotColor: 'bg-sky-400' },
+    { id: 'watchLater', label: 'Watch Later', count: stats.watchLaterCount, dotColor: 'bg-amber-400' },
+    { id: 'watched', label: 'Completed', count: stats.watchedCount, dotColor: 'bg-emerald-400' },
+    { id: 'skipped', label: 'Skipped', count: stats.skippedCount, dotColor: 'bg-slate-500' },
   ];
 
   const sortOptions: { id: SortOption; label: string }[] = [
@@ -49,91 +54,78 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   ];
 
   return (
-    <div className="bg-[#11141E] border border-[#1E2536] rounded-2xl p-3 sm:p-4 space-y-3">
+    <div className="bg-[#0F1118] border border-white/[0.06] rounded-xl p-3 sm:p-3.5 space-y-2.5">
       
-      {/* 1. Franchise Tabs (Swipeable on mobile) */}
-      <div>
-        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Shield className="w-3 h-3 text-[#E62429]" />
-            <span>Franchise / Universe</span>
-          </div>
-          <span className="text-[10px] text-slate-500 font-mono sm:hidden">
-            Swipe &rarr;
-          </span>
-        </div>
+      {/* 1. Franchise Segmented Strip (Linear / Raycast Style) */}
+      <div className="overflow-x-auto no-scrollbar flex items-center gap-1 pb-0.5 -mx-1 px-1">
+        {franchiseTabs.map(tab => {
+          const isSelected = filters.franchise === tab.id;
 
-        <div className="overflow-x-auto no-scrollbar flex items-center gap-1.5 pb-1 -mx-1 px-1">
-          {franchiseTabs.map(tab => {
-            const isSelected = filters.franchise === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setFilters(prev => ({ ...prev, franchise: tab.id }))}
+              className={`flex-shrink-0 px-2.5 py-1.2 rounded-lg text-xs font-medium transition-all ${
+                isSelected
+                  ? 'bg-white/[0.1] text-white shadow-subtle border border-white/[0.12]'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] border border-transparent'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 2. Status Chips & Metrics Row */}
+      <div className="pt-2 border-t border-white/[0.04] flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+        
+        {/* Status Chips */}
+        <div className="overflow-x-auto no-scrollbar flex items-center gap-1.5 pb-0.5 -mx-1 px-1">
+          {statusTabs.map(tab => {
+            const isSelected = filters.status === tab.id;
 
             return (
               <button
                 key={tab.id}
-                onClick={() => setFilters(prev => ({ ...prev, franchise: tab.id }))}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                onClick={() => setFilters(prev => ({ ...prev, status: tab.id }))}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                   isSelected
-                    ? 'bg-[#E62429] text-white shadow-sm'
-                    : 'bg-[#0A0C10] text-slate-400 hover:text-slate-200 border border-[#1E2536]'
+                    ? 'bg-white/[0.1] text-white border border-white/[0.14]'
+                    : 'bg-[#08090C] text-slate-400 hover:text-slate-200 border border-white/[0.06]'
                 }`}
               >
-                {tab.label}
+                {tab.dotColor && (
+                  <span className={`w-1.5 h-1.5 rounded-full ${tab.dotColor} ${isSelected ? 'opacity-100' : 'opacity-60'}`} />
+                )}
+                <span>{tab.label}</span>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                    isSelected ? 'bg-white/10 text-white' : 'bg-white/[0.04] text-slate-400'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
+
+        {/* Total match counter */}
+        <span className="text-xs text-slate-400 font-mono hidden sm:inline flex-shrink-0 ml-auto tabular-nums">
+          {totalMatches} {filters.status === 'skipped' ? 'skipped' : 'titles'}
+        </span>
+
       </div>
 
-      {/* 2. Status Pills (Swipeable on mobile) */}
-      <div className="pt-2 border-t border-[#1E2536]/70">
-        <div className="overflow-x-auto no-scrollbar flex items-center justify-between gap-1.5 pb-1 -mx-1 px-1">
-          
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {statusTabs.map(tab => {
-              const isSelected = filters.status === tab.id;
-              const Icon = tab.icon;
-
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilters(prev => ({ ...prev, status: tab.id }))}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                    isSelected
-                      ? tab.id === 'skipped'
-                        ? 'bg-slate-700 text-white'
-                        : 'bg-[#1E2536] text-white border border-[#2E3852]'
-                      : 'bg-[#0A0C10] text-slate-400 hover:text-slate-200 border border-[#1E2536]'
-                  }`}
-                >
-                  {Icon && <Icon className="w-3 h-3" />}
-                  <span>{tab.label}</span>
-                  {tab.count !== undefined && tab.count > 0 && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                      isSelected ? 'bg-black/40 text-slate-200' : 'bg-[#1E2536] text-slate-400'
-                    }`}>
-                      {tab.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <span className="text-xs text-slate-400 font-mono hidden sm:inline flex-shrink-0 ml-2">
-            {totalMatches} {filters.status === 'skipped' ? 'skipped' : 'titles'}
-          </span>
-
-        </div>
-      </div>
-
-      {/* 3. Sort & Reset: Simple and compact */}
-      <div className="pt-2 border-t border-[#1E2536]/70 flex items-center justify-between gap-2 text-xs">
+      {/* 3. Sort & Reset Bar */}
+      <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between text-xs">
         <div className="flex items-center gap-2">
           <span className="text-slate-500 text-[11px]">Sort:</span>
           <select
             value={filters.sortBy}
             onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as SortOption }))}
-            className="bg-[#0A0C10] border border-[#1E2536] rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-[#E62429] cursor-pointer"
+            className="bg-[#08090C] border border-white/[0.08] hover:border-white/[0.14] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-white/30 cursor-pointer transition-colors"
           >
             {sortOptions.map(s => (
               <option key={s.id} value={s.id}>{s.label}</option>
@@ -142,7 +134,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400 font-mono sm:hidden">
+          <span className="text-xs text-slate-400 font-mono sm:hidden tabular-nums">
             {totalMatches} {filters.status === 'skipped' ? 'skipped' : 'titles'}
           </span>
 
@@ -154,7 +146,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 status: 'all',
                 searchQuery: '',
               }))}
-              className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors ml-auto sm:ml-0"
+              className="text-[11px] text-slate-400 hover:text-rose-400 flex items-center gap-1 transition-colors ml-auto sm:ml-0"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>

@@ -30,83 +30,90 @@ export const MovieCard: React.FC<MovieCardProps> = ({
   return (
     <div 
       className={`group rounded-xl border transition-all ${
-        status === 'watched'
-          ? 'bg-[#101713] border-emerald-500/30'
+        isSkipped
+          ? 'bg-[#0A0C10] border-white/[0.04] opacity-50'
+          : status === 'watched'
+          ? 'bg-[#0F1218] border-emerald-500/20 hover:border-emerald-500/30'
           : status === 'watching'
-          ? 'bg-[#0F1524] border-blue-500/35'
+          ? 'bg-[#0F131D] border-sky-500/20 hover:border-sky-500/30'
           : status === 'watchLater'
-          ? 'bg-[#18140B] border-amber-500/30'
-          : status === 'skipped'
-          ? 'bg-[#121318] border-slate-800 opacity-60'
-          : 'bg-[#11141E] border-[#1E2536] hover:border-[#2E3852]'
+          ? 'bg-[#121115] border-amber-500/20 hover:border-amber-500/30'
+          : 'bg-[#0F1118] border-white/[0.06] hover:border-white/[0.12] hover:bg-[#131622]'
       }`}
     >
-      {/* ================= DESKTOP LAYOUT (sm and up) ================= */}
-      <div className="hidden sm:flex items-center justify-between p-3.5">
+      {/* Desktop Layout (sm and up) */}
+      <div className="hidden sm:flex items-center justify-between p-3.5 gap-3">
         
-        {/* Clickable info area */}
+        {/* Clickable Info Area */}
         <div 
           className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"
           onClick={() => onOpenDetails(item)}
         >
-          {/* Left indicator line */}
-          <div className={`w-1 h-9 rounded-full flex-shrink-0 ${
-            status === 'watched' ? 'bg-emerald-500' :
-            status === 'watching' ? 'bg-blue-500' :
-            status === 'watchLater' ? 'bg-amber-500' :
-            status === 'skipped' ? 'bg-slate-600' :
-            'bg-transparent'
-          }`} />
+          {/* Subtle Status Pip Indicator */}
+          <div className="flex-shrink-0 w-2 flex items-center justify-center">
+            {status === 'watched' ? (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+            ) : status === 'watching' ? (
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.6)]" />
+            ) : status === 'watchLater' ? (
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+            ) : (
+              <span className="w-1 h-1 rounded-full bg-white/10 group-hover:bg-white/20" />
+            )}
+          </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+            {/* Metadata Tags */}
+            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
               {item.subfranchise && (
-                <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.2 rounded">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 bg-white/[0.04] border border-white/[0.06] px-1.5 py-0.2 rounded">
                   {item.subfranchise}
                 </span>
               )}
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-400 tabular-nums">
                 {item.year}
               </span>
               <span className="text-[11px] text-slate-500">
-                {item.type}
+                &bull; {item.type}
               </span>
               {isSkipped && (
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
+                <span className="text-[10px] font-mono text-slate-400 bg-white/[0.06] px-1.5 py-0.2 rounded">
                   Skipped
                 </span>
               )}
             </div>
 
-            <h4 className="font-semibold text-sm sm:text-base text-slate-100 truncate group-hover:text-white transition-colors">
+            {/* Title */}
+            <h4 className="font-semibold text-sm text-slate-100 truncate group-hover:text-white transition-colors tracking-tight">
               {item.title}
             </h4>
 
+            {/* Micro details */}
             <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 font-mono text-[11px]">
               <span className="flex items-center gap-1 text-slate-400">
                 <Clock className="w-3 h-3 text-slate-500" />
                 {item.runtime}
               </span>
-              <span className="flex items-center gap-1 text-amber-400">
-                <Star className="w-3 h-3 fill-amber-400" />
+              <span className="flex items-center gap-1 text-amber-400/90 tabular-nums">
+                <Star className="w-3 h-3 fill-current" />
                 {item.rating}
               </span>
               {epProgress && (
-                <span className="text-blue-400">
-                  {epProgress.watched}/{epProgress.total} eps
+                <span className="text-sky-400/90">
+                  {epProgress.watched} / {epProgress.total} eps ({epProgress.percentage}%)
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Desktop Actions */}
-        <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+        {/* Action Controls */}
+        <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
           {isSkipped ? (
             <button
               onClick={() => unskipItem(item.id)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-300 hover:text-white bg-[#1E2536] hover:bg-[#2A344A] transition-colors"
-              title="Restore to active list"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+              title="Restore to active watchlist"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Un-skip</span>
@@ -115,22 +122,22 @@ export const MovieCard: React.FC<MovieCardProps> = ({
             <>
               <button
                 onClick={() => toggleStatus(item.id, 'watched')}
-                className={`p-1.5 rounded-md text-xs transition-colors ${
+                className={`p-1.5 rounded-md text-xs transition-colors border ${
                   status === 'watched'
-                    ? 'bg-emerald-500 text-white'
-                    : 'text-slate-400 hover:text-emerald-400 hover:bg-[#1E2536]'
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 shadow-sm'
+                    : 'bg-transparent border-transparent text-slate-400 hover:text-emerald-300 hover:bg-white/[0.04]'
                 }`}
-                title="Mark Watched"
+                title="Mark as Completed"
               >
                 <Check className="w-3.5 h-3.5" />
               </button>
 
               <button
                 onClick={() => toggleStatus(item.id, 'watching')}
-                className={`p-1.5 rounded-md text-xs transition-colors ${
+                className={`p-1.5 rounded-md text-xs transition-colors border ${
                   status === 'watching'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-slate-400 hover:text-blue-400 hover:bg-[#1E2536]'
+                    ? 'bg-sky-500/15 border-sky-500/30 text-sky-300 shadow-sm'
+                    : 'bg-transparent border-transparent text-slate-400 hover:text-sky-300 hover:bg-white/[0.04]'
                 }`}
                 title="Currently Watching"
               >
@@ -139,10 +146,10 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
               <button
                 onClick={() => toggleStatus(item.id, 'watchLater')}
-                className={`p-1.5 rounded-md text-xs transition-colors ${
+                className={`p-1.5 rounded-md text-xs transition-colors border ${
                   status === 'watchLater'
-                    ? 'bg-amber-500 text-white'
-                    : 'text-slate-400 hover:text-amber-400 hover:bg-[#1E2536]'
+                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-300 shadow-sm'
+                    : 'bg-transparent border-transparent text-slate-400 hover:text-amber-300 hover:bg-white/[0.04]'
                 }`}
                 title="Watch Later"
               >
@@ -151,8 +158,8 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
               <button
                 onClick={() => skipItem(item.id)}
-                className="p-1.5 rounded-md text-xs text-slate-400 hover:text-slate-200 hover:bg-[#1E2536] transition-colors"
-                title="Skip (Hides from main list)"
+                className="p-1.5 rounded-md text-xs text-slate-500 hover:text-slate-300 hover:bg-white/[0.04] transition-colors"
+                title="Skip (hide from active list)"
               >
                 <SkipForward className="w-3.5 h-3.5" />
               </button>
@@ -161,8 +168,8 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
           <button
             onClick={() => onOpenDetails(item)}
-            className="p-1.5 text-slate-500 hover:text-slate-300 rounded-md hover:bg-[#1E2536]"
-            title="Details"
+            className="p-1.5 text-slate-500 hover:text-slate-200 rounded-md hover:bg-white/[0.04] transition-colors"
+            title="View Details"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -170,9 +177,8 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
       </div>
 
-
-      {/* ================= MOBILE LAYOUT (clean, touch-friendly) ================= */}
-      <div className="sm:hidden p-3 space-y-2.5">
+      {/* Mobile Layout (Fluid and Clean) */}
+      <div className="sm:hidden p-3 space-y-2">
         
         {/* Header & Title */}
         <div 
@@ -181,12 +187,20 @@ export const MovieCard: React.FC<MovieCardProps> = ({
         >
           <div className="flex items-center justify-between gap-2 mb-1">
             <div className="flex items-center gap-1.5 flex-wrap">
+              {status === 'watched' ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-0.5" />
+              ) : status === 'watching' ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mr-0.5" />
+              ) : status === 'watchLater' ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-0.5" />
+              ) : null}
+
               {item.subfranchise && (
-                <span className="text-[10px] font-medium font-mono text-slate-300 bg-[#1E2536] px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 bg-white/[0.04] border border-white/[0.06] px-1.5 py-0.2 rounded">
                   {item.subfranchise}
                 </span>
               )}
-              <span className="text-[11px] font-mono text-slate-400">
+              <span className="text-[11px] font-mono text-slate-400 tabular-nums">
                 {item.year}
               </span>
               <span className="text-[11px] text-slate-500">
@@ -195,15 +209,15 @@ export const MovieCard: React.FC<MovieCardProps> = ({
             </div>
 
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
-              <span className="text-amber-400 font-mono flex items-center gap-0.5">
-                <Star className="w-3 h-3 fill-amber-400" />
+              <span className="text-amber-400/90 font-mono flex items-center gap-0.5 tabular-nums">
+                <Star className="w-3 h-3 fill-current" />
                 {item.rating}
               </span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-500 ml-0.5" />
             </div>
           </div>
 
-          <h4 className="font-semibold text-sm text-slate-100 leading-snug line-clamp-2">
+          <h4 className="font-semibold text-sm text-slate-100 leading-snug line-clamp-2 tracking-tight">
             {item.title}
           </h4>
 
@@ -213,48 +227,48 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               {item.runtime}
             </span>
             {epProgress && (
-              <span className="text-blue-400">
-                {epProgress.watched}/{epProgress.total} episodes
+              <span className="text-sky-400">
+                {epProgress.watched} / {epProgress.total} eps
               </span>
             )}
             {isSkipped && (
-              <span className="text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded text-[10px]">
+              <span className="text-slate-400 bg-white/[0.06] px-1.5 py-0.2 rounded text-[10px]">
                 Skipped
               </span>
             )}
           </div>
         </div>
 
-        {/* Mobile Touch Action Bar */}
-        <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[#1E2536]/80">
+        {/* Mobile Action Bar */}
+        <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-white/[0.04]">
           {isSkipped ? (
             <button
               onClick={() => unskipItem(item.id)}
-              className="w-full py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-[#1E2536] active:bg-[#2A344A] flex items-center justify-center gap-1.5"
+              className="w-full py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/[0.06] active:bg-white/[0.1] border border-white/[0.08] flex items-center justify-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Restore to Active List</span>
+              <span>Restore to Watchlist</span>
             </button>
           ) : (
             <>
               <button
                 onClick={() => toggleStatus(item.id, 'watched')}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors border ${
                   status === 'watched'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                    : 'bg-[#08090C] border-white/[0.06] text-slate-400 active:text-white'
                 }`}
               >
-                <Check className="w-3.5 h-3.5" />
+                <Check className="w-3 h-3" />
                 <span className="text-[11px]">Watched</span>
               </button>
 
               <button
                 onClick={() => toggleStatus(item.id, 'watching')}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors border ${
                   status === 'watching'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                    ? 'bg-sky-500/15 border-sky-500/30 text-sky-300'
+                    : 'bg-[#08090C] border-white/[0.06] text-slate-400 active:text-white'
                 }`}
               >
                 <Play className="w-3 h-3 fill-current" />
@@ -263,10 +277,10 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
               <button
                 onClick={() => toggleStatus(item.id, 'watchLater')}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors border ${
                   status === 'watchLater'
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-[#151926] text-slate-300 active:bg-[#1E2536]'
+                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                    : 'bg-[#08090C] border-white/[0.06] text-slate-400 active:text-white'
                 }`}
               >
                 <Bookmark className="w-3 h-3 fill-current" />
@@ -275,10 +289,10 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
               <button
                 onClick={() => skipItem(item.id)}
-                className="py-1.5 px-2.5 rounded-lg text-xs font-medium bg-[#151926] text-slate-400 active:bg-[#1E2536] flex items-center justify-center"
+                className="py-1.5 px-2.5 rounded-lg text-xs font-medium bg-[#08090C] border border-white/[0.06] text-slate-400 active:text-white flex items-center justify-center"
                 title="Skip"
               >
-                <SkipForward className="w-3.5 h-3.5" />
+                <SkipForward className="w-3 h-3" />
               </button>
             </>
           )}
