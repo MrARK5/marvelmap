@@ -93,13 +93,13 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
     <div className="space-y-6 max-w-4xl mx-auto">
       
       {/* Header */}
-      <div>
-        <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-          <Compass className="w-4 h-4 text-[#E62429]" />
-          <span>Recommended Watch Orders</span>
+      <div className="p-4 rounded-xl bg-obsidian-900/60 border border-white/[0.06] backdrop-blur-md">
+        <h2 className="text-sm font-semibold tracking-tight text-white flex items-center gap-2">
+          <Compass className="w-3.5 h-3.5 text-[#E62429]" />
+          <span>Curated Watch Orders</span>
         </h2>
         <p className="text-xs text-slate-400 mt-0.5">
-          Select a watch strategy that suits your viewing style.
+          Select a viewing roadmap tailored to your universe depth and preference.
         </p>
       </div>
 
@@ -114,20 +114,20 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
               onClick={() => setSelectedOrder(opt.id)}
               className={`cursor-pointer p-4 rounded-xl border transition-all flex flex-col justify-between ${
                 isSelected
-                  ? 'bg-[#151B2A] border-[#E62429]'
-                  : 'bg-[#11141E] border-[#1E2536] hover:border-[#2E3852]'
+                  ? 'bg-obsidian-900 border-white/[0.18] shadow-sm'
+                  : 'bg-obsidian-900/40 border-white/[0.06] hover:border-white/[0.12]'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
-                    isSelected ? 'bg-red-500/10 border-red-500/30 text-red-300' : 'bg-[#0A0C10] border-[#1E2536] text-slate-400'
+                  <span className={`text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                    isSelected ? 'bg-white/[0.1] border-white/[0.15] text-white' : 'bg-obsidian-950 border-white/[0.06] text-slate-400'
                   }`}>
                     {opt.tag}
                   </span>
                 </div>
 
-                <h3 className="font-bold text-sm text-white mb-1">
+                <h3 className="font-semibold text-sm text-white mb-1 tracking-tight">
                   {opt.title}
                 </h3>
                 <p className="text-[11px] text-slate-400 mb-2 font-medium">
@@ -143,17 +143,17 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
       </div>
 
       {/* Selected Order Progress */}
-      <div className="p-4 rounded-xl bg-[#11141E] border border-[#1E2536] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 rounded-xl bg-obsidian-900/60 border border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <div className="text-xs font-semibold text-slate-200">
-            Selected Order Progress: <span className="font-mono text-[#E62429]">{progressPercent}%</span>
+            Roadmap Progress: <span className="font-mono text-white tabular-nums">{progressPercent}%</span>
           </div>
-          <div className="text-[11px] text-slate-400 mt-0.5">
+          <div className="text-[11px] text-slate-400 mt-0.5 font-mono tabular-nums">
             {watchedCount} of {activeList.length} titles completed
           </div>
         </div>
 
-        <div className="w-full sm:w-60 h-1.5 bg-[#0A0C10] rounded-full overflow-hidden border border-[#1E2536]">
+        <div className="w-full sm:w-60 h-1.5 bg-obsidian-950 rounded-full overflow-hidden border border-white/[0.06]">
           <div
             className="h-full bg-[#E62429] rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
@@ -169,52 +169,47 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
           return (
             <div
               key={item.id}
-              className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                status === 'watched'
-                  ? 'bg-[#111915] border-emerald-500/30'
-                  : status === 'watching'
-                  ? 'bg-[#101624] border-blue-500/40'
-                  : 'bg-[#11141E] border-[#1E2536] hover:border-[#2E3852]'
-              }`}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-obsidian-900/80 border border-white/[0.06] hover:border-white/[0.14] transition-all group"
             >
               <div 
-                className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+                className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"
                 onClick={() => onSelectMovie(item)}
               >
                 {/* Index step */}
-                <div className={`w-6 h-6 rounded-md flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 ${
+                <div className={`w-6 h-6 rounded-md flex items-center justify-center font-mono font-medium text-xs flex-shrink-0 tabular-nums ${
                   status === 'watched'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-[#0A0C10] border border-[#1E2536] text-slate-400'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    : 'bg-obsidian-950 border border-white/[0.06] text-slate-400'
                 }`}>
                   {status === 'watched' ? <Check className="w-3.5 h-3.5" /> : index + 1}
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-mono text-slate-500">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                       {item.subfranchise || item.universe || item.type}
                     </span>
-                    <span className="text-xs font-mono text-slate-400">
+                    <span className="text-slate-600 text-[10px]">•</span>
+                    <span className="text-xs font-mono text-slate-400 tabular-nums">
                       {item.year}
                     </span>
                     {item.isEssential && (
-                      <span className="text-[10px] font-medium text-amber-300 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/30">
+                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20">
                         Essential
                       </span>
                     )}
                   </div>
 
-                  <h4 className="font-semibold text-sm text-slate-100 truncate">
+                  <h4 className="font-medium text-sm text-slate-100 truncate group-hover:text-white transition-colors">
                     {item.title}
                   </h4>
 
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono mt-0.5">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono mt-1">
                     <span>{item.type}</span>
                     <span>•</span>
                     <span>{item.runtime}</span>
-                    <span className="flex items-center gap-1 text-amber-400 ml-auto">
-                      <Star className="w-3 h-3 fill-amber-400" />
+                    <span className="flex items-center gap-1 text-amber-400/90 ml-auto tabular-nums">
+                      <Star className="w-3 h-3 fill-amber-400/80" />
                       {item.rating}
                     </span>
                   </div>
@@ -225,10 +220,10 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
               <div className="flex items-center gap-1 ml-3 flex-shrink-0">
                 <button
                   onClick={() => toggleStatus(item.id, 'watched')}
-                  className={`p-1.5 rounded-md text-xs ${
+                  className={`p-1.5 rounded-lg text-xs transition-colors ${
                     status === 'watched'
-                      ? 'bg-emerald-500 text-white'
-                      : 'text-slate-400 hover:text-emerald-400 hover:bg-[#1E2536]'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'text-slate-400 hover:text-emerald-400 hover:bg-white/[0.04]'
                   }`}
                   title="Mark Watched"
                 >
@@ -237,10 +232,10 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
 
                 <button
                   onClick={() => toggleStatus(item.id, 'watching')}
-                  className={`p-1.5 rounded-md text-xs ${
+                  className={`p-1.5 rounded-lg text-xs transition-colors ${
                     status === 'watching'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-slate-400 hover:text-blue-400 hover:bg-[#1E2536]'
+                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                      : 'text-slate-400 hover:text-sky-400 hover:bg-white/[0.04]'
                   }`}
                   title="Currently Watching"
                 >
@@ -249,10 +244,10 @@ export const WatchOrderView: React.FC<WatchOrderViewProps> = ({ onSelectMovie })
 
                 <button
                   onClick={() => toggleStatus(item.id, 'watchLater')}
-                  className={`p-1.5 rounded-md text-xs ${
+                  className={`p-1.5 rounded-lg text-xs transition-colors ${
                     status === 'watchLater'
-                      ? 'bg-amber-500 text-white'
-                      : 'text-slate-400 hover:text-amber-400 hover:bg-[#1E2536]'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      : 'text-slate-400 hover:text-amber-400 hover:bg-white/[0.04]'
                   }`}
                   title="Watch Later"
                 >

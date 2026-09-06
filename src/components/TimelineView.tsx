@@ -62,10 +62,10 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
     <div className="space-y-6 max-w-4xl mx-auto">
       
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#11141E] border border-[#1E2536]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-obsidian-900/60 border border-white/[0.06] backdrop-blur-md">
         <div>
-          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#E62429]" />
+          <h2 className="text-sm font-semibold tracking-tight text-white flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-[#E62429]" />
             <span>Marvel Timeline</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -75,42 +75,42 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
 
         <div className="flex items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-[#0A0C10] p-0.5 rounded-md border border-[#1E2536]">
+          <div className="flex items-center bg-obsidian-950 p-0.5 rounded-lg border border-white/[0.06]">
             <button
               onClick={() => setTimelineMode('release')}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
                 timelineMode === 'release'
-                  ? 'bg-[#1E2536] text-white'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white/[0.08] text-white shadow-sm border border-white/[0.08]'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
-              Release
+              Theatrical Release
             </button>
             <button
               onClick={() => setTimelineMode('chronological')}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
                 timelineMode === 'chronological'
-                  ? 'bg-[#1E2536] text-white'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white/[0.08] text-white shadow-sm border border-white/[0.08]'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
-              Storyline
+              Story Chronology
             </button>
           </div>
         </div>
       </div>
 
       {/* Timeline List */}
-      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-2.5 sm:before:left-3.5 before:top-2 before:bottom-2 before:w-[1px] before:bg-[#1E2536]">
+      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-2.5 sm:before:left-3.5 before:top-2 before:bottom-2 before:w-[1px] before:bg-white/[0.08]">
         {years.map(year => (
           <div key={year} className="relative space-y-3">
             
             {/* Year Node */}
             <div className="flex items-center gap-2.5 -ml-6 sm:-ml-8">
-              <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#11141E] border border-[#2E3852] text-slate-300 flex items-center justify-center font-mono font-bold text-[10px] sm:text-xs z-10">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-obsidian-900 border border-white/[0.12] text-slate-200 flex items-center justify-center font-mono font-medium text-[10px] sm:text-xs z-10 tabular-nums shadow-sm">
                 {year.slice(-2)}
               </div>
-              <span className="font-mono text-xs font-bold text-slate-400">
+              <span className="font-mono text-xs font-semibold text-slate-300 tabular-nums">
                 {year}
               </span>
             </div>
@@ -123,49 +123,41 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
                 return (
                   <div
                     key={item.id}
-                    className={`p-3 rounded-lg border transition-all flex flex-col justify-between ${
-                      status === 'watched'
-                        ? 'bg-[#111915] border-emerald-500/30'
-                        : status === 'watching'
-                        ? 'bg-[#101624] border-blue-500/40'
-                        : status === 'watchLater'
-                        ? 'bg-[#1c170d] border-amber-500/30'
-                        : 'bg-[#11141E] border-[#1E2536] hover:border-[#2E3852]'
-                    }`}
+                    className="p-3.5 rounded-xl border border-white/[0.06] bg-obsidian-900/80 hover:border-white/[0.14] transition-all flex flex-col justify-between group"
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="text-[10px] font-mono text-slate-400">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                           {item.subfranchise || item.universe || item.type}
                         </span>
-                        <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400">
-                          <Star className="w-3 h-3 fill-amber-400" />
+                        <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400/90 tabular-nums">
+                          <Star className="w-3 h-3 fill-amber-400/80" />
                           <span>{item.rating}</span>
                         </div>
                       </div>
 
                       <h4
                         onClick={() => onSelectMovie(item)}
-                        className="font-semibold text-sm text-slate-100 hover:text-white cursor-pointer line-clamp-1 mb-1"
+                        className="font-medium text-sm text-slate-100 group-hover:text-white cursor-pointer line-clamp-1 mb-1 transition-colors"
                       >
                         {item.title}
                       </h4>
 
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
                         <span>{item.type}</span>
                         <span>•</span>
                         <span>{item.runtime}</span>
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-[#1E2536] flex items-center justify-between">
+                    <div className="mt-3.5 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => toggleStatus(item.id, 'watched')}
-                          className={`p-1 rounded text-xs ${
+                          className={`p-1.5 rounded-md text-xs transition-colors ${
                             status === 'watched'
-                              ? 'bg-emerald-500 text-white'
-                              : 'text-slate-400 hover:text-emerald-400 hover:bg-[#1E2536]'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'text-slate-400 hover:text-emerald-400 hover:bg-white/[0.04]'
                           }`}
                           title="Mark Watched"
                         >
@@ -173,10 +165,10 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
                         </button>
                         <button
                           onClick={() => toggleStatus(item.id, 'watching')}
-                          className={`p-1 rounded text-xs ${
+                          className={`p-1.5 rounded-md text-xs transition-colors ${
                             status === 'watching'
-                              ? 'bg-blue-500 text-white'
-                              : 'text-slate-400 hover:text-blue-400 hover:bg-[#1E2536]'
+                              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                              : 'text-slate-400 hover:text-sky-400 hover:bg-white/[0.04]'
                           }`}
                           title="Currently Watching"
                         >
@@ -184,10 +176,10 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ onSelectMovie }) => 
                         </button>
                         <button
                           onClick={() => toggleStatus(item.id, 'watchLater')}
-                          className={`p-1 rounded text-xs ${
+                          className={`p-1.5 rounded-md text-xs transition-colors ${
                             status === 'watchLater'
-                              ? 'bg-amber-500 text-white'
-                              : 'text-slate-400 hover:text-amber-400 hover:bg-[#1E2536]'
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              : 'text-slate-400 hover:text-amber-400 hover:bg-white/[0.04]'
                           }`}
                           title="Watch Later"
                         >
