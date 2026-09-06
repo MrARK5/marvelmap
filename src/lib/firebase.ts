@@ -18,7 +18,7 @@ import {
   setDoc 
 } from 'firebase/firestore';
 
-// Default live Firebase project configuration for MarvelMap
+// Live Firebase project configuration for MarvelMap
 const DEFAULT_FIREBASE_CONFIG = {
   projectId: "marvelmap-watchlist-2026",
   appId: "1:403670286348:web:58d38d81d496693b946e29",
@@ -43,7 +43,6 @@ function getInitialConfig() {
     console.error('Failed to parse saved config', e);
   }
 
-  // Use environment variables if set, otherwise use DEFAULT_FIREBASE_CONFIG
   return {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || DEFAULT_FIREBASE_CONFIG.apiKey,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_FIREBASE_CONFIG.authDomain,
@@ -81,7 +80,7 @@ export function initFirebase(config = currentConfig) {
   return false;
 }
 
-// Initialize on module load
+// Initialize on load
 initFirebase();
 
 export function saveFirebaseConfig(config: Record<string, string>): boolean {
@@ -93,6 +92,13 @@ export function saveFirebaseConfig(config: Record<string, string>): boolean {
     return false;
   }
 }
+
+// Helper to prevent hanging calls
+const timeout = <T>(prom: Promise<T>, ms = 3000): Promise<T> =>
+  Promise.race([
+    prom,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), ms))
+  ]);
 
 // Watchlist data shape for sync
 export interface UserWatchlistData {
@@ -106,21 +112,20 @@ export interface UserWatchlistData {
  * Save user watchlist data to Firestore and persistent local storage
  */
 export async function saveUserData(uid: string, data: UserWatchlistData): Promise<void> {
-  // Always persist locally under account UID
+  // Always save locally immediately under account UID
   try {
     localStorage.setItem(`marvelmap_account_data_${uid}`, JSON.stringify(data));
   } catch (e) {
     console.error('Local account save failed', e);
   }
 
-  // If Firestore is available, sync to Cloud Firestore
+  // Sync to Cloud Firestore in background with timeout safety
   if (isFirebaseConfigured && db) {
     try {
       const userRef = doc(db, 'users', uid);
-      await setDoc(userRef, data, { merge: true });
+      await timeout(setDoc(userRef, data, { merge: true }), 3000);
     } catch (err) {
-      // Cloud Firestore might be in local mode or API pending
-      console.log('Local account saved (cloud sync pending):', err);
+      console.warn('Firestore cloud save timed out, saved locally:', err);
     }
   }
 }
@@ -132,12 +137,12 @@ export async function loadUserData(uid: string): Promise<UserWatchlistData | nul
   if (isFirebaseConfigured && db) {
     try {
       const userRef = doc(db, 'users', uid);
-      const snapshot = await getDoc(userRef);
+      const snapshot = await timeout(getDoc(userRef), 3000);
       if (snapshot.exists()) {
         return snapshot.data() as UserWatchlistData;
       }
     } catch (err) {
-      console.log('Loading from local account storage');
+      console.warn('Firestore cloud load timed out, falling back to local copy');
     }
   }
 
